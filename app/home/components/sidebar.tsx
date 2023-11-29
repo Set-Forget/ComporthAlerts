@@ -33,6 +33,11 @@ export const SidebarNav = ({
           href: "/home/addresses",
           title: "Addresses",
         },
+        ,
+        {
+          href: "/home/incidents",
+          title: "Incidents",
+        },
       ].map((item) => (
         <Link
           key={item.href}
