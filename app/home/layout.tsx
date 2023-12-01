@@ -13,7 +13,7 @@ export default async ({ children }: { children: React.ReactNode }) => {
       <Header />
       <Separator />
       <div className="flex flex-1 gap-3">
-        <aside className="w-1/6">
+        <aside className="w-1/12">
           <SidebarNav />
         </aside>
         <Separator orientation="vertical" />

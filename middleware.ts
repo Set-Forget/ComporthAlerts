@@ -21,19 +21,19 @@ export async function middleware(request: NextRequest) {
       res: response,
     });
     // const user = await supabase.auth.getUser();
-    const { data } = await supabase.auth.getSession();
+    const { data: session } = await supabase.auth.getSession();
+    const { data: user } = await supabase.from("account").select().single();
 
-    if (!data.session) {
-      if (request.nextUrl.pathname !== "/") {
-        return NextResponse.redirect(new URL("/", request.url));
-      }
+    if (session && user) {
+      return NextResponse.redirect(new URL("/home", request.url));
     }
 
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    window.sessionStorage.setItem('userEmail', user.email);
     return response;
   } catch (e) {
-    // If you are here, a Supabase client could not be created!
-    // This is likely because you have not set up environment variables.
-    // Check out http://localhost:3000 for Next Steps.
     return NextResponse.next({
       request: {
         headers: request.headers,
