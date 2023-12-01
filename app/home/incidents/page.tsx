@@ -1,7 +1,8 @@
 "use client";
 import React from 'react';
 import { DataTable } from '@/components/DataTable';
-import { useIncidentsFetcher } from './incidentFetch';
+import { useIncidentsFetcher } from './components/incidentFetch';
+
 
 type Incident = {
   casenumber: string;
@@ -31,12 +32,16 @@ const IncidentsPage: React.FC = () => {
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-
+  
+  if (!incidents || incidents.length === 0) {
+    return <p>No incidents available.</p>;
+  }
   const formattedIncidents: Incident[] = incidents.map(incident => ({
     ...incident,
     investigationcompleted: formatDate(incident.investigationcompleted),
     investigationprocessid: String(incident.investigationprocessid),
   }));
+ 
   return (
     <div>
       <DataTable

@@ -2,8 +2,6 @@ import Link from "next/link";
 import { headers, cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 import { LinkedinIcon, Facebook, Twitter } from "lucide-react";
 
 export default function Login({
@@ -15,8 +13,12 @@ export default function Login({
     "use server";
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
+    
+    
+    
 
     const oauth = await supabase.auth.signInWithOAuth({
+      
       provider: "google",
       options: {
         redirectTo: (() => {
@@ -41,6 +43,7 @@ export default function Login({
   };
 
   return (
+    
     <>
       <div className="md:hidden">
         {/* <Image
