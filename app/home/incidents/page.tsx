@@ -19,7 +19,8 @@ type Incident = {
 };
 
 const IncidentsPage: React.FC = () => {
-  const incidents = useIncidentsFetcher();
+  const {incidents, loading} = useIncidentsFetcher();
+  
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -33,6 +34,11 @@ const IncidentsPage: React.FC = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
   
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   if (!incidents || incidents.length === 0) {
     return <p>No incidents available.</p>;
   }
