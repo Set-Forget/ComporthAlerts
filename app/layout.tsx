@@ -3,7 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
+  ? `"https://comporth-alerts-r84v-set-and-forget.vercel.app`
   : "http://localhost:3000";
 
 export const metadata = {
