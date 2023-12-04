@@ -3,7 +3,7 @@ import { headers, cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { LinkedinIcon, Facebook, Twitter } from "lucide-react";
-import { url } from "inspector";
+
 
 export default function Login({
   searchParams,
@@ -24,7 +24,9 @@ export default function Login({
       options: {
         redirectTo: (() => {
           let url =
-            "https://comporth-alerts-r84v-set-and-forget.vercel.app/home";
+          process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
+          process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
+          "http://localhost:3000/auth/callback";
           // Make sure to include `https://` when not localhost.
           url = url.includes("http") ? url : `https://${url}`;
           // Make sure to include a trailing `/`.

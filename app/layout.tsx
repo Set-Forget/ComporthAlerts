@@ -3,11 +3,11 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 const defaultUrl = process.env.VERCEL_URL
-  ? `"https://comporth-alerts-r84v-set-and-forget.vercel.app`
+  ? `${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
 export const metadata = {
-  metadataBase: new URL("https://comporth-alerts-r84v-set-and-forget.vercel.app"),
+  metadataBase: new URL(defaultUrl),
   title: "Next.js and Supabase Starter Kit",
   description: "The fastest way to build apps with Next.js and Supabase",
 };

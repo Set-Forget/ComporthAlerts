@@ -25,7 +25,7 @@ export const fetchAccountRole = async () => {
       .select("role")
       .eq("email", email)
       .single();
-
+    
     return data?.role || null;
   } catch (error) {
     console.error("Error fetching user role:", error);

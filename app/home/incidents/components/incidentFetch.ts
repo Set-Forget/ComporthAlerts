@@ -13,6 +13,7 @@ export const useIncidentsFetcher = () => {
         // Utilizar las funciones de supabaseUtils para obtener la información necesaria
         const role = await fetchAccountRole();
         const organization = await fetchAccountOrganization();
+        
 
         if (role === 'admin') {
           fetch('https://phl.carto.com/api/v2/sql?q=SELECT * FROM case_investigations ORDER BY investigationcompleted DESC LIMIT 20')
@@ -47,6 +48,6 @@ export const useIncidentsFetcher = () => {
     
     fetchData();
   }, []);
-  
+
   return {incidents, loading};
 };
