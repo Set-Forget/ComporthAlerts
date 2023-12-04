@@ -24,7 +24,7 @@ export default function Login({
       options: {
         redirectTo: (() => {
           let url =
-            "https://comporth-alerts-r84v-set-and-forget.vercel.app/auth/callback";
+            "https://comporth-alerts-r84v-set-and-forget.vercel.app/home";
           // Make sure to include `https://` when not localhost.
           url = url.includes("http") ? url : `https://${url}`;
           // Make sure to include a trailing `/`.
