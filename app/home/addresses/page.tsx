@@ -39,7 +39,7 @@ export default () => {
             header: "Zip",
           },
         ]}
-        data={userSWR.data?.data || []}
+        data={(userSWR.data as any)?.data || []}
       />
     </div>
   );

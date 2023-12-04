@@ -37,7 +37,7 @@ export default () => {
             header: "Role",
           },
         ]}
-        data={userSWR.data?.data || []}
+        data={(userSWR.data as any)?.data || []}
       />
     </div>
   );
