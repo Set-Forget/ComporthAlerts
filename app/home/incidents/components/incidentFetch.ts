@@ -14,8 +14,7 @@ export const useIncidentsFetcher = () => {
       try {
         const role = await fetchAccountRole();
         const organization = await fetchAccountOrganization();
-        
-        
+
 
         if (role === 'admin') {
           const data = await fetchAdminIncidents();
