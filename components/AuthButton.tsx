@@ -22,7 +22,7 @@ export default async function AuthButton() {
   if (!user.data.user) {
     return (
       <Link
-        href="/login"
+        href="/"
         className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
       >
         Login

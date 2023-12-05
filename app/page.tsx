@@ -25,7 +25,7 @@ export default function Login({
         redirectTo: (() => {
           let url =
          // Set this to your site URL in production env.
-          "https://"+process?.env?.NEXT_PUBLIC_VERCEL_URL+"/auth/callback" // Automatically set by Vercel.
+          "https://comporth-alerts-set-and-forget.vercel.app/auth/callback" // Automatically set by Vercel.
           
           // Make sure to include `https://` when not localhost.
           
@@ -35,10 +35,10 @@ export default function Login({
     });
 
     if (oauth.error) {
-      return redirect("https://"+process?.env?.NEXT_PUBLIC_VERCEL_URL+"/");
+      return redirect("https://comporth-alerts-set-and-forget.vercel.app/");
     }
         
-    return redirect("https://"+process?.env?.NEXT_PUBLIC_VERCEL_URL+"/auth/callback");
+    return redirect("https://comporth-alerts-set-and-forget.vercel.app/auth/callback");
   };
 
   return (
