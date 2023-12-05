@@ -38,7 +38,7 @@ export default function Login({
       return redirect("https://comporth-alerts-set-and-forget.vercel.app/");
     }
         
-    return redirect("https://comporth-alerts-set-and-forget.vercel.app/auth/callback");
+    return redirect(oauth.data.url);
   };
 
   return (
