@@ -26,13 +26,12 @@ export async function GET(request: Request) {
     if (!userQuery.data) {
       console.log('User data not found, signing out');
       await supabase.auth.signOut();
-      //return NextResponse.redirect(requestUrl.origin);
+      return NextResponse.redirect(requestUrl.origin);
     }
   }
   let url =
   // Set this to your site URL in production env.
-   process?.env?.NEXT_PUBLIC_VERCEL_URL+"/home" ??  // Automatically set by Vercel.
-   "http://localhost:3000/home";
+   process.env.NEXT_PUBLIC_VERCEL_URL+"/home" 
   // URL to redirect to after sign in process completes
   return NextResponse.redirect(url);
 }
