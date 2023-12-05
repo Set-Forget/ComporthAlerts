@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     if (!userQuery.data) {
       console.log('User data not found, signing out');
       await supabase.auth.signOut();
-      return NextResponse.redirect(requestUrl.origin);
+      //return NextResponse.redirect(requestUrl.origin);
     }
   }
   let url =
