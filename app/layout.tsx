@@ -2,8 +2,10 @@ import { GeistSans } from "geist/font";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
+const defaultUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+  ? `${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  : "http://localhost:3000";
 
-  
 export const metadata = {
   metadataBase: new URL("https://comporth-alerts-set-and-forget.vercel.app" || ""),
   title: "Next.js and Supabase Starter Kit",
