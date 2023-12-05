@@ -21,7 +21,7 @@ export default function Login({
     const oauth = await supabase.auth.signInWithOAuth({
       
       provider: "google",
-      /*options: {
+      options: {
         redirectTo: (() => {
           let url =
          // Set this to your site URL in production env.
@@ -31,7 +31,7 @@ export default function Login({
           
           return url;
         })(),
-      },*/
+      },
     });
 
     if (oauth.error) {
@@ -39,6 +39,7 @@ export default function Login({
     }
     
     
+    console.log(oauth.data.url);
     
     return redirect(oauth.data.url);
   };
