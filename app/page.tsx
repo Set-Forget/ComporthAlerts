@@ -35,13 +35,10 @@ export default function Login({
     });
 
     if (oauth.error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("https://"+process?.env?.NEXT_PUBLIC_VERCEL_URL+"/");
     }
-    
-    
-    console.log(oauth.data.url);
-    
-    return redirect(oauth.data.url);
+        
+    return redirect("https://"+process?.env?.NEXT_PUBLIC_VERCEL_URL+"/auth/callback");
   };
 
   return (
