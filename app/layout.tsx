@@ -2,10 +2,10 @@ import { GeistSans } from "geist/font";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const defaultUrl =  process.env.NEXT_PUBLIC_VERCEL_URL;
+
   
 export const metadata = {
-  metadataBase: new URL(process?.env?.NEXT_PUBLIC_VERCEL_URL || ""),
+  metadataBase: new URL("https://"+process?.env?.NEXT_PUBLIC_VERCEL_URL || ""),
   title: "Next.js and Supabase Starter Kit",
   description: "The fastest way to build apps with Next.js and Supabase",
 };
