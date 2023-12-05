@@ -18,27 +18,22 @@ export default function Login({
     
     
 
-    const oauth = await supabase.auth.signInWithOAuth({
-      
-      provider: "google",
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
       options: {
-        redirectTo: (() => {
-          let url =
-         // Set this to your site URL in production env.
-          "https://comporth-alerts-set-and-forget.vercel.app/auth/callback" // Automatically set by Vercel.
-          
-          // Make sure to include `https://` when not localhost.
-          
-          return url;
-        })(),
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       },
-    });
+    })
+    
 
-    if (oauth.error) {
+    if (error) {
       return redirect("https://comporth-alerts-set-and-forget.vercel.app/");
     }
         
-    return redirect(oauth.data.url);
+    return redirect("https://comporth-alerts-set-and-forget.vercel.app/home");
   };
 
   return (
