@@ -24,7 +24,7 @@ export default function Login({
       options: {
         redirectTo: (() => {
           let url =
-          "https://set-forget.github.io/ComporthAlerts/auth/callback" ?? // Set this to your site URL in production env.
+          "https://comporth-alerts-r84v.vercel.app/auth/callback" ?? // Set this to your site URL in production env.
           process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
           "http://localhost:3000/auth/callback";
           // Make sure to include `https://` when not localhost.
