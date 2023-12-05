@@ -32,6 +32,8 @@ const IncidentsPage: React.FC = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -48,7 +50,7 @@ const IncidentsPage: React.FC = () => {
       casenumber: incident.casenumber,
       casetype: incident.casetype,
       caseresponsibility: incident.caseresponsibility,
-      investigationprocessid: incident.investigationprocessid,
+      investigationprocessid: incident.investigationprocessid.toString(),
       investigationtype: incident.investigationtype,
       investigationcompleted: formatDate(incident.investigationcompleted),
       investigationstatus: incident.investigationstatus,
