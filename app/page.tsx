@@ -14,8 +14,7 @@ export default function Login({
     "use server";
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
-    console.log(process?.env?.NEXT_PUBLIC_SITE_URL);
-    console.log(process?.env?.NEXT_PUBLIC_VERCEL_URL);
+
 
 
 
@@ -24,9 +23,9 @@ export default function Login({
       provider: "google",
       options: {
         redirectTo: (() => {
-          let url =
-            (process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_VERCEL_WEB_URL ?? "http://localhost:3000") +
-            "/auth/callback";
+          let url = "https://comporth-alerts-jt-jts-projects-33023a20.vercel.app/auth/callback"
+            /*(process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_VERCEL_WEB_URL ?? "http://localhost:3000") +
+            "/auth/callback";*/
 
           return url;
         })(),
