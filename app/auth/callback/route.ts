@@ -29,8 +29,8 @@ export async function GET(request: Request) {
       return NextResponse.redirect(requestUrl.origin);
     }
   }
-  /*let url =
+  let url =
   process.env.NEXT_PUBLIC_VERCEL_WEB_URL + "/home" ??
-  "http://localhost:3000/home";*/
-return NextResponse.redirect("https://comporth-alerts-jt-jts-projects-33023a20.vercel.app/home");
+  "http://localhost:3000/home";
+return NextResponse.redirect(url);
 }
