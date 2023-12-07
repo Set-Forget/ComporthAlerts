@@ -6,8 +6,7 @@ import { cookies } from "next/headers";
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  console.log(process?.env?.NEXT_PUBLIC_SITE_URL);
-  console.log(process?.env?.NEXT_PUBLIC_VERCEL_URL);
+
 
   if (code) {
     const cookieStore = cookies();
@@ -32,7 +31,7 @@ export async function GET(request: Request) {
   }
   let url =
   // Set this to your site URL in production env.
-   "https://" + process?.env?.NEXT_PUBLIC_VERCEL_URL+"/home" ??  // Automatically set by Vercel.
+   "https://" + process.env.NEXT_PUBLIC_VERCEL_URL+"/home" ??  // Automatically set by Vercel.
    "http://localhost:3000/home";
   return NextResponse.redirect(url);
 }
