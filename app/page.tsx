@@ -25,8 +25,8 @@ export default function Login({
       options: {
         redirectTo: (() => {
           let url =
-          "https://" + process.env.NEXT_PUBLIC_SITE_URL +"/auth/callback" ?? // Set this to your site URL in production env.
-          "https://" + process.env.NEXT_PUBLIC_VERCEL_URL + "/auth/callback" ?? // Automatically set by Vercel.
+          process.env.NEXT_PUBLIC_SITE_URL + "auth/callback" ?? // Set this to your site URL in production env.
+          process.env.NEXT_PUBLIC_VERCEL_WEB_URL + "auth/callback" ?? // Automatically set by Vercel.
           "http://localhost:3000/auth/callback";
           // Make sure to include `https://` when not localhost.
           url = url.includes("http") ? url : `https://${url}`;

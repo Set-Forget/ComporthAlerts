@@ -2,8 +2,8 @@ import { GeistSans } from "geist/font";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const defaultUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-  ? "https://"+`${process.env.NEXT_PUBLIC_VERCEL_URL}`
+const defaultUrl = process.env.NEXT_PUBLIC_VERCEL_WEB_URL
+  ? `${process.env.NEXT_PUBLIC_VERCEL_WEB_URL}`
   : "http://localhost:3000";
 
 export const metadata = {
