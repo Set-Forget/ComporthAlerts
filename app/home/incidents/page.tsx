@@ -3,6 +3,8 @@ import React from "react";
 import { DataTable } from "@/components/DataTable";
 import { useIncidentsFetcher } from "./components/incidentFetch";
 import { useRequireAuth } from "@/utils/hooks/auth";
+import { format, isValid, parse} from "date-fns";
+
 
 type Incident = {
   casenumber: string;
@@ -10,7 +12,7 @@ type Incident = {
   caseresponsibility: string;
   investigationprocessid: string;
   investigationtype: string;
-  investigationcompleted: string;
+  investigationcompleted: any;
   investigationstatus: string;
   address: string;
   unit_num: string;
@@ -22,19 +24,8 @@ const IncidentsPage: React.FC = () => {
   useRequireAuth();
   const { incidents, loading } = useIncidentsFetcher();
 
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  
+ 
+ 
 
   if (loading) {
     return <p>Loading...</p>;
@@ -54,7 +45,7 @@ const IncidentsPage: React.FC = () => {
       caseresponsibility: incident.caseresponsibility,
       investigationprocessid: incident.investigationprocessid.toString(),
       investigationtype: incident.investigationtype,
-      investigationcompleted: formatDate(incident.investigationcompleted),
+      investigationcompleted: (format(new Date(Date.parse(incident.investigationcompleted)), "MM/dd/yyyy")),
       investigationstatus: incident.investigationstatus,
       address: incident.address,
       unit_num: incident.unit_num,

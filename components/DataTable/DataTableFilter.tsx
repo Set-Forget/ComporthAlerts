@@ -1,13 +1,12 @@
 "use client";
 import { Column, Table } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { parse, isValid } from "date-fns";
 import { Input } from "../ui/input";
+import { DateRangePicker, FocusedInputShape } from "react-dates";
+import React from "react";
 
-function isValidDate(dateString: any) {
-  const parsedDate = parse(dateString, "MM/dd/yyyy @ hh:mm a", new Date());
-  return isValid(parsedDate);
-}
+
 
 export function DataTableFilter({
   column,
@@ -22,6 +21,12 @@ export function DataTableFilter({
 
   const columnFilterValue = column.getFilterValue();
 
+  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(null);
+
+  const handleDatesChange = ({ startDate, endDate }: { startDate: any; endDate: any }) => {
+    column.setFilterValue(() => [startDate, endDate]);
+  };
+
   const sortedUniqueValues = useMemo(
     () =>
       typeof firstValue === "number"
@@ -29,32 +34,30 @@ export function DataTableFilter({
         : Array.from(column.getFacetedUniqueValues().keys()).sort(),
     [column.getFacetedUniqueValues()]
   );
+   
+    
+  if (false) {
+    const [from, to] = (columnFilterValue as [any, any]) || [undefined, undefined];
 
-  //   if (isValidDate(firstValue) && isNaN(Number(firstValue))) {
-  //     const [from, to] = (columnFilterValue as [any, any]) || [
-  //       undefined,
-  //       undefined,
-  //     ];
-  //     return (
-  //       <Flex gap={2} width={230} fontFamily="body">
-  //         <DatePicker
-  //           value={{ from, to }}
-  //           inputProps={{ size: "sm", placeholder: "start date" }}
-  //           mode="range"
-  //           onClear={() =>
-  //             column.setFilterValue(() => {
-  //               return [undefined, undefined];
-  //             })
-  //           }
-  //           onChange={(date: any) => {
-  //             column.setFilterValue(() => {
-  //               return [date?.from, date?.to];
-  //             });
-  //           }}
-  //         />
-  //       </Flex>
-  //     );
-  //   }
+    return (
+      <div className="flex gap-2">
+        <DateRangePicker
+          startDate={from}
+          endDate={to}
+          onDatesChange={handleDatesChange}
+          focusedInput={focusedInput}
+          onFocusChange={(focusedInput) => setFocusedInput(focusedInput)}
+          showClearDates
+          small
+          withPortal
+          displayFormat="MM/DD/YYYY"
+          startDateId={`startDate-${column.id}`}
+          endDateId={`endDate-${column.id}`}
+        />
+      </div>
+    );
+  }
+
 
   if (typeof firstValue === "number") {
     return (
@@ -95,11 +98,6 @@ export function DataTableFilter({
 
   return (
     <>
-      <datalist id={column.id + "list"}>
-        {sortedUniqueValues.slice(0, 5000).map((value: string, index) => (
-          <option value={value} key={`${value}-${index}`} />
-        ))}
-      </datalist>
       <Input
         className="h-[30px]"
         value={(columnFilterValue ?? "") as string}
