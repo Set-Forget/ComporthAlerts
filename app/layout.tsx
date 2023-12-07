@@ -7,7 +7,7 @@ const defaultUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   : "http://localhost:3000";
 
 export const metadata = {
-  metadataBase: new URL("https://comporth-alerts-set-and-forget.vercel.app" || ""),
+  metadataBase: new URL(defaultUrl),
   title: "Next.js and Supabase Starter Kit",
   description: "The fastest way to build apps with Next.js and Supabase",
 };
