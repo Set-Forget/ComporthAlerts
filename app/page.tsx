@@ -17,21 +17,17 @@ export default function Login({
     console.log(process?.env?.NEXT_PUBLIC_SITE_URL);
     console.log(process?.env?.NEXT_PUBLIC_VERCEL_URL);
 
-    
+
 
     const oauth = await supabase.auth.signInWithOAuth({
-    
-    provider: "google",
+
+      provider: "google",
       options: {
         redirectTo: (() => {
           let url =
-          process.env.NEXT_PUBLIC_SITE_URL + "auth/callback" ?? // Set this to your site URL in production env.
-          process.env.NEXT_PUBLIC_VERCEL_WEB_URL + "auth/callback" ?? // Automatically set by Vercel.
-          "http://localhost:3000/auth/callback";
-          // Make sure to include `https://` when not localhost.
-          url = url.includes("http") ? url : `https://${url}`;
-          // Make sure to include a trailing `/`.
-          url = url.charAt(url.length - 1) === "/" ? url : `${url}/`;
+            (process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_VERCEL_WEB_URL ?? "http://localhost:3000") +
+            "/auth/callback";
+
           return url;
         })(),
       },
@@ -40,12 +36,12 @@ export default function Login({
     if (oauth.error) {
       return redirect("/login?message=Could not authenticate user");
     }
-        
+
     return redirect(oauth.data.url);
   };
 
   return (
-    
+
     <>
       <div className="md:hidden">
         {/* <Image

@@ -30,8 +30,7 @@ export async function GET(request: Request) {
     }
   }
   let url =
-  // Set this to your site URL in production env.
-   process.env.NEXT_PUBLIC_VERCEL_WEB_URL+"home" ??  // Automatically set by Vercel.
-   "http://localhost:3000/home";
-  return NextResponse.redirect(url);
+  process.env.NEXT_PUBLIC_VERCEL_WEB_URL + "/home" ??
+  "http://localhost:3000/home";
+return NextResponse.redirect(url);
 }
