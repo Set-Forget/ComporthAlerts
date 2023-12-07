@@ -6,6 +6,7 @@ import { OrganizationCRUD, OrganizationTable } from "./components";
 
 export default () => {
   useRequireAuth();
+
   return (
     <div>
       <OrganizationCRUD />

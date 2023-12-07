@@ -16,7 +16,7 @@ export default () => {
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
+      if (event === "SIGNED_IN")  {
         router.push('/home')
       } else { router.push('/') }
     })

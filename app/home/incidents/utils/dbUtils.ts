@@ -5,8 +5,7 @@ const supabase = createClientComponentClient();
 export const fetchAccountEmail = async () => {
   try {
     const { data: session, error } = await supabase.auth.getSession();
-    console.log(session.session?.user.email);
-    
+   
     
     if (error) {
       console.error("Error fetching session:", error);

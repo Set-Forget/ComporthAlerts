@@ -1,10 +1,16 @@
-// middleware.ts
-
 import { NextResponse, NextRequest } from "next/server";
+import { createClient } from "@/utils/supabase/middleware";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
 export async function middleware(request: NextRequest) {
   try {
+    // This `try/catch` block is only here for the interactive tutorial.
+    // Feel free to remove once you have Supabase connected.
+    // const { supabase, response } = createClient(request);
+    // Refresh session if expired - required for Server Components
+    // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
+    // const { data } = await supabase.auth.getSession();
+    // const data = await supabase.auth.refreshSession();
     const response = NextResponse.next({
       request: {
         headers: request.headers,
@@ -14,25 +20,20 @@ export async function middleware(request: NextRequest) {
       req: request,
       res: response,
     });
-
-    // Obtenemos la sesión del usuario
+    // const user = await supabase.auth.getUser();
     const { data: session } = await supabase.auth.getSession();
+    const { data: user } = await supabase.from("account").select().single();
 
-    // Si no hay sesión, redirigir a la página de inicio
+    if (session && user) {
+      return NextResponse.redirect(new URL("/home", request.url));
+    }
+
     if (!session) {
       return NextResponse.redirect(new URL("/", request.url));
     }
-
-    // Obtener datos del usuario si es necesario
-    // const { data: user } = await supabase.from("account").select().single();
-
-    // Guardar datos del usuario en sessionStorage si es necesario
-    // window.sessionStorage.setItem('userEmail', user.email);
-
+    window.sessionStorage.setItem('userEmail', user.email);
     return response;
   } catch (e) {
-    // Manejar cualquier error aquí
-    console.error(e);
     return NextResponse.next({
       request: {
         headers: request.headers,

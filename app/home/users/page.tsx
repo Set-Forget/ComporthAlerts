@@ -15,7 +15,7 @@ export default () => {
   });
 
   if (userSWR.isLoading) return <>...LOADING</>;
-  console.log(userSWR.data);
+
   return (
     <div>
       <Button>create</Button>
