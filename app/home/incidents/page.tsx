@@ -2,6 +2,7 @@
 import React from "react";
 import { DataTable } from "@/components/DataTable";
 import { useIncidentsFetcher } from "./components/incidentFetch";
+import { useRequireAuth } from "@/utils/hooks/auth";
 
 type Incident = {
   casenumber: string;
@@ -18,6 +19,7 @@ type Incident = {
 };
 
 const IncidentsPage: React.FC = () => {
+  useRequireAuth();
   const { incidents, loading } = useIncidentsFetcher();
 
   const formatDate = (dateString: string) => {

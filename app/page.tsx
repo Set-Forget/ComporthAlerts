@@ -20,7 +20,7 @@ export default () => {
         router.push('/home')
       } else { router.push('/') }
     })
-  }, [router])
+  }, [])
 
 
   return (
