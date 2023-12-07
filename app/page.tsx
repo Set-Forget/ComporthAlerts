@@ -14,6 +14,10 @@ export default function Login({
     "use server";
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
+    console.log(process?.env?.NEXT_PUBLIC_SITE_URL);
+    console.log(process?.env?.NEXT_PUBLIC_VERCEL_URL);
+
+    
 
     const oauth = await supabase.auth.signInWithOAuth({
     

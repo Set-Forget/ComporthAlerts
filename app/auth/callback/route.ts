@@ -6,7 +6,8 @@ import { cookies } from "next/headers";
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-
+  console.log(process?.env?.NEXT_PUBLIC_SITE_URL);
+  console.log(process?.env?.NEXT_PUBLIC_VERCEL_URL);
 
   if (code) {
     const cookieStore = cookies();
