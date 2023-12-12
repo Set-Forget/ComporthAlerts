@@ -12,8 +12,7 @@ import {
 import { ColumnDef, flexRender, Row, getPaginationRowModel } from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
 import { DataTableFilter } from "./DataTableFilter";
-import { useState } from "react";
-import { Button } from "@/components/ui/button"
+
 import { DataTablePagination } from "./DataTablePagination";
 
 export interface Props {
@@ -22,44 +21,13 @@ export interface Props {
   rowIcon?: (data: any) => JSX.Element;
 }
 
-// const handleRefreshData = () => {
-//   // Borra los datos almacenados en localStorage
-//   localStorage.removeItem("incidents");
-//   // Recarga la página para obtener datos actualizados
-//   window.location.reload();
-// };
 
 export const DataTable = (props: Props) => {
   const hook = useDataTable(props);
 
-
-  
-
-
   return (
     <div className="flex flex-col ">
-      {/* <div>
-        <button
-          className=" bg-zinc-900 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded flex items-center space-x-2 justify-end"
-          onClick={handleRefreshData}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            className="h-4 w-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 10l7-7m0 0l7 7m-7-7v18"
-            />
-          </svg>
-          Refresh
-        </button>
-      </div> */}
+      
       <div>
         <div ref={hook.tableContainerRef} className="">
           <Table className="w-[100%] ">

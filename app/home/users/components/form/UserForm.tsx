@@ -20,6 +20,7 @@ const initialize = (init?: any) => {
     email: init?.email || "",
     phone: init?.phone || "",
     role: init?.role || "",
+    organization: init?.organization_id
   };
 };
 
@@ -30,6 +31,7 @@ export const UserForm = (props: Props) => {
     email: string;
     phone: string;
     role: string;
+    organization: number;
   }>({
     defaultValues: initialize(props.init),
   });
@@ -45,6 +47,7 @@ export const UserForm = (props: Props) => {
             email: draft.email,
             phone: draft.phone,
             role: draft.role,
+            organization_id: draft.organization
           },
         ])
         .select();
@@ -67,6 +70,7 @@ export const UserForm = (props: Props) => {
           email: draft.email,
           phone: draft.phone,
           role: draft.role,
+          organization_id: draft.organization
         })
         .eq("id", Number(props.init.id))
         .select();
@@ -155,6 +159,14 @@ export const UserForm = (props: Props) => {
                 },
               ],
             },
+          })}
+        />
+        <FormField
+          control={form.control}
+          name="organization"
+          render={RHFSlot({
+            label: "Organization",
+            rhf: "Input",
           })}
         />
         <div className="flex gap-2 items-center mt-6">

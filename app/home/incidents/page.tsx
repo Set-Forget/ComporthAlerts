@@ -3,7 +3,7 @@ import React from "react";
 import { DataTable } from "@/components/DataTable";
 import { useIncidentsFetcher } from "./components/incidentFetch";
 import { useRequireAuth } from "@/utils/hooks/auth";
-import { Button } from "@/components/ui/button"
+
 
 
 const IncidentsPage: React.FC = () => {
@@ -34,7 +34,7 @@ const IncidentsPage: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-2 relative">
-      <div>
+      <div className="mb-4">
         <button
           className=" bg-zinc-900 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded flex items-center space-x-2 justify-end"
           onClick={handleRefreshData}
