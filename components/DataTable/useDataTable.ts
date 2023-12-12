@@ -9,10 +9,12 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFacetedMinMaxValues,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import { useRef, useState } from "react";
 import { Props } from "./DataTable";
 import { fuzzyFilter, dateFilter } from "./utils";
+
 
 export const useDataTable = (props: Props) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -33,6 +35,7 @@ export const useDataTable = (props: Props) => {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const tableEntries = table.getRowModel();

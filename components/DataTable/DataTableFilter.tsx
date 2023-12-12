@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Column, Table } from "@tanstack/react-table";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Input } from "../ui/input";
-import { addDays, format } from "date-fns"
+import {  format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
  
@@ -24,8 +23,7 @@ export function DataTableFilter({
   column: Column<any, unknown>;
   table: Table<any>;
 }) {
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+
   
 
   const updateFilter = (start: Date | null, end: Date | null) => {
@@ -73,7 +71,7 @@ export function DataTableFilter({
             
             variant={"outline"}
             className={cn(
-              "w-auto justify-start text-left font-normal",
+              "w-auto justify-start text-left font-normal h-8",
               !date && "text-muted-foreground"
             )}
           >
@@ -81,7 +79,7 @@ export function DataTableFilter({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "MM/dd/yyyy")} -{" "}
+                  {format(date.from, "MM/dd/yyyy")} {" "}
                   {format(date.to, "MM/dd/yyyy")}
                 </>
               ) : (
@@ -93,6 +91,7 @@ export function DataTableFilter({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
+              
           <Calendar
             initialFocus
             mode="range"
