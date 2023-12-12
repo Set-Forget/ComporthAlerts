@@ -1,11 +1,20 @@
-"use client";
+import React, { useState } from "react";
 import { Column, Table } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
-import { parse, isValid } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { Input } from "../ui/input";
-import { DateRangePicker, FocusedInputShape } from "react-dates";
-import React from "react";
-
+import { addDays, format } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { DateRange } from "react-day-picker"
+ 
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 
 export function DataTableFilter({
@@ -15,96 +24,97 @@ export function DataTableFilter({
   column: Column<any, unknown>;
   table: Table<any>;
 }) {
-  const firstValue = table
-    .getPreFilteredRowModel()
-    .flatRows[0]?.getValue(column.id);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  
+
+  const updateFilter = (start: Date | null, end: Date | null) => {
+    let newFilterValue = null;
+    
+    if (start && end) {
+      console.log("start" + start.toISOString());
+      console.log("end" + end.toISOString());
+      const formattedStartDate = format(start, "MM/dd/yyyy");
+      const formattedEndDate = format(end, "MM/dd/yyyy");
+      newFilterValue = [formattedStartDate, formattedEndDate];
+
+      // Aplicar el filtro a la columna de la tabla
+      column.setFilterValue(newFilterValue);
+    }
+  };
 
   const columnFilterValue = column.getFilterValue();
 
-  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(null);
+  const [date, setDate] = React.useState<DateRange | undefined>({
+    from: undefined,
+    to:   undefined,
+  })
 
-  const handleDatesChange = ({ startDate, endDate }: { startDate: any; endDate: any }) => {
-    column.setFilterValue(() => [startDate, endDate]);
-  };
-
-  const sortedUniqueValues = useMemo(
-    () =>
-      typeof firstValue === "number"
-        ? []
-        : Array.from(column.getFacetedUniqueValues().keys()).sort(),
-    [column.getFacetedUniqueValues()]
-  );
-   
+  const handleDateChange = (date: any | undefined) => {
+    setDate(date)
+    console.log(date);
     
-  if (false) {
-    const [from, to] = (columnFilterValue as [any, any]) || [undefined, undefined];
+    if (date?.from && date?.to) {
+      const formattedStartDate = format(date.from, "MM/dd/yyyy");
+      const formattedEndDate = format(date.to, "MM/dd/yyyy");
+      const newFilterValue = [formattedStartDate, formattedEndDate];
+      column.setFilterValue(newFilterValue);
+    }
+  }
+  
 
+  if (column.id === "investigationcompleted") {
     return (
-      <div className="flex gap-2">
-        <DateRangePicker
-          startDate={from}
-          endDate={to}
-          onDatesChange={handleDatesChange}
-          focusedInput={focusedInput}
-          onFocusChange={(focusedInput) => setFocusedInput(focusedInput)}
-          showClearDates
-          small
-          withPortal
-          displayFormat="MM/DD/YYYY"
-          startDateId={`startDate-${column.id}`}
-          endDateId={`endDate-${column.id}`}
-        />
-      </div>
+      
+      <Popover >
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            
+            variant={"outline"}
+            className={cn(
+              "w-auto justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "MM/dd/yyyy")} -{" "}
+                  {format(date.to, "MM/dd/yyyy")}
+                </>
+              ) : (
+                format(date.from, "MM/dd/yyyy")
+              )
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={handleDateChange}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
+      </Popover>
     );
   }
 
-
-  if (typeof firstValue === "number") {
-    return (
-      <div className="flex gap-2">
-        <Input
-          className="h-[30px]"
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
-          value={(columnFilterValue as [number, number])?.[0] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [value, old?.[1]])
-          }
-          placeholder={`Min ${
-            column.getFacetedMinMaxValues()?.[0]
-              ? `(${column.getFacetedMinMaxValues()?.[0]})`
-              : ""
-          }`}
-        />
-        <Input
-          className="h-[30px]"
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
-          value={(columnFilterValue as [number, number])?.[1] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [old?.[0], value])
-          }
-          placeholder={`Max ${
-            column.getFacetedMinMaxValues()?.[1]
-              ? `(${column.getFacetedMinMaxValues()?.[1]})`
-              : ""
-          }`}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <Input
-        className="h-[30px]"
-        value={(columnFilterValue ?? "") as string}
-        onChange={(e) => column.setFilterValue(e.target.value)}
-        placeholder="search"
-        list={column.id + "list"}
-      />
-    </>
-  );
+return (
+  <>
+    <Input
+      className="h-[30px]"
+      value={(columnFilterValue ?? "") as string}
+      onChange={(e) => column.setFilterValue(e.target.value)}
+      placeholder="search"
+      list={column.id + "list"}
+    />
+  </>
+);
 }

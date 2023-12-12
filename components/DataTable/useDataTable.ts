@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useRef, useState } from "react";
 import { Props } from "./DataTable";
-import { fuzzyFilter } from "./utils";
+import { fuzzyFilter, dateFilter } from "./utils";
 
 export const useDataTable = (props: Props) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -37,6 +37,22 @@ export const useDataTable = (props: Props) => {
 
   const tableEntries = table.getRowModel();
 
+  const applyFilter = (columnId: string, filterValue: string | [Date, Date]) => {
+    return tableEntries.rows.filter((row) => {
+      if (filterValue instanceof Array) {
+        // Handle date filter
+        return dateFilter(row, columnId, filterValue);
+      } else {
+        // Handle other filters
+        const cellValue = row.original[columnId]?.toString() || '';
+        console.log('Filter:', filterValue);
+        console.log('CellValue:', cellValue);
+        return filterValue ? cellValue.includes(filterValue) : true;
+      }
+    });
+  };
+
+
   const virtualizer = useVirtual({
     parentRef: tableContainerRef,
     size: tableEntries.rows.length,
@@ -49,5 +65,6 @@ export const useDataTable = (props: Props) => {
     rowModel: tableEntries.rows,
     tableContainerRef,
     headers: props.headers,
+    applyFilter,
   };
 };

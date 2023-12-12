@@ -23,9 +23,9 @@ export const DataTable = (props: Props) => {
   const hook = useDataTable(props);
 
   return (
-    <div ref={hook.tableContainerRef}>
+    <div ref={hook.tableContainerRef} className="z-50 sticky top-0">
       <Table className="w-[100%]">
-        <TableHeader className="z-50 sticky top-0">
+        <TableHeader >
           {hook.table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {!!props.rowIcon && <TableHead className="w-[40px]" />}
@@ -33,7 +33,7 @@ export const DataTable = (props: Props) => {
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
-                    className="min-w-[100px]"
+                    className="min-w-[100px] z-50 sticky top-0"
                     key={header.id}
                     colSpan={header.colSpan}
                   >
