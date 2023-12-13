@@ -9,7 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { ColumnDef, flexRender, Row, getPaginationRowModel } from "@tanstack/react-table";
+import {
+  ColumnDef,
+  flexRender,
+  Row,
+  getPaginationRowModel,
+} from "@tanstack/react-table";
 import { useDataTable } from "./useDataTable";
 import { DataTableFilter } from "./DataTableFilter";
 
@@ -21,13 +26,11 @@ export interface Props {
   rowIcon?: (data: any) => JSX.Element;
 }
 
-
 export const DataTable = (props: Props) => {
   const hook = useDataTable(props);
 
   return (
     <div className="flex flex-col ">
-      
       <div>
         <div ref={hook.tableContainerRef} className="">
           <Table className="w-[100%] ">
@@ -57,8 +60,8 @@ export const DataTable = (props: Props) => {
                               asc: <ArrowUp size={16} />,
                               desc: <ArrowDown size={16} />,
                             }[header.column.getIsSorted() as string] ?? (
-                                <ArrowUp className="opacity-0" />
-                              )}
+                              <ArrowUp className="opacity-0" />
+                            )}
                           </div>
                           {header.column.getCanFilter() && (
                             <DataTableFilter
@@ -74,39 +77,39 @@ export const DataTable = (props: Props) => {
               ))}
             </TableHeader>
             <TableBody>
-            {hook.rows.map((VR, ri) => {
-              const row = hook.rowModel[VR.index] as Row<any>;
+              {hook.rows.map((VR, ri) => {
+                const row = hook.rowModel[VR.index] as Row<any>;
 
-              return (
-                <TableRow
-                  key={`${row.id}-${ri}`}
-                  {...(row.original.deleted && { className: "opacity-[.5]" })}
-                >
-                  {!!props.rowIcon && (
-                    <TableCell className="max-w-[30px]">
-                      {props.rowIcon(row.original)}
-                    </TableCell>
-                  )}
-                  {row.getVisibleCells().map((cell, ci) => {
-                    return (
-                      <TableCell key={`${cell.id}-${ri}-${ci}`}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                return (
+                  <TableRow
+                    key={`${row.id}-${ri}`}
+                    {...(row.original && row.original.deleted
+                      ? { className: "opacity-[.5]" }
+                      : {})}
+                  >
+                    {!!props.rowIcon && (
+                      <TableCell className="max-w-[30px]">
+                        {props.rowIcon(row.original)}
                       </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
-          </TableBody>
+                    )}
+                    {row.getVisibleCells().map((cell, ci) => {
+                      return (
+                        <TableCell key={`${cell.id}-${ri}-${ci}`}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
           </Table>
         </div>
         <DataTablePagination table={hook.table} />
-          </div>
-          </div>
-           
-
+      </div>
+    </div>
   );
 };

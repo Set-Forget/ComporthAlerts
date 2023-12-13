@@ -55,7 +55,7 @@ export const fetchOrganizationAccountId = async () => {
 export const fetchAccountOrganization = async () => {
   try {
     const id = await fetchOrganizationAccountId();
-    const { data } = await supabase
+    const { data } = await supabase 
       .from("organization")
       .select("name")
       .eq("id", id)

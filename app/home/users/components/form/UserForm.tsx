@@ -173,9 +173,9 @@ export const UserForm = (props: Props) => {
           <Button className="flex-1" type="submit">
             Submit
           </Button>
-          <Button onClick={props.onCancel} className="flex-1" variant="outline">
+          {/* <Button onClick={props.onCancel} className="flex-1" variant="outline">
             Cancel
-          </Button>
+          </Button> */}
           {!!props?.init?.id && (
             <Button onClick={onDelete} className="flex-1" variant="destructive">
               Delete

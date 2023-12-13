@@ -2,7 +2,6 @@
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import useSWR, { mutate } from "swr";
-
 import { DataTable } from "@/components/DataTable";
 import { useOrganizationQuery } from "../use-organization-query";
 import { useState } from "react";
@@ -20,19 +19,22 @@ export const OrganizationUserTable = () => {
     data: null,
   });
 
-  const accounts = useSWR(
-    !!query.state.data.id ? "organization_account" : null,
+  const { data:accounts, error, isLoading } = useSWR(
+    !!query.state.data.id ? "account" : null,
     (key: string) => {
       const supabase = createClientComponentClient();
+      console.log(key);
+  
       return supabase
         .from(key)
-        .select(`account(id,full_name,email,phone,role)`)
+        .select(`full_name, email, phone, role`)
         .eq("organization_id", Number(query.state.data.id))
         .is("deleted", false);
     }
   );
+  
 
-  if (accounts.isLoading) return <>...LOADING</>;
+  if (isLoading) return <>...LOADING</>;
 
   if (form.type === "EDIT") {
     return (
@@ -77,6 +79,7 @@ export const OrganizationUserTable = () => {
       >
         + Add
       </Button>
+      
       <DataTable
         rowIcon={(data) => (
           <EyeIcon
@@ -102,9 +105,13 @@ export const OrganizationUserTable = () => {
             header: "Role",
           },
         ]}
+        
         //@ts-ignore
-        data={accounts.data?.data.map((ACC) => ACC.account) || []}
+        data={accounts.data }
+        
+        
       />
+      
     </div>
   );
 };

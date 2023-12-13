@@ -12,7 +12,6 @@ import { OrganizationForm } from "./form";
 import { Button } from "@/components/ui/button";
 import useSWR, { mutate } from "swr";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useState } from "react";
 import { OrganizationAddressTable, OrganizationUserTable } from "./table";
 

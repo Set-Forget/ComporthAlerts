@@ -27,6 +27,8 @@ export const OrganizationForm = (props: Props) => {
     defaultValues: initialize(props.init),
   });
 
+
+
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
 
@@ -62,7 +64,7 @@ export const OrganizationForm = (props: Props) => {
   });
 
   return (
-    <Form {...form}>
+    <Form {...form} >
       <form onSubmit={onSubmit} className="flex flex-col gap-2 p-2">
         <FormField
           control={form.control}
@@ -95,9 +97,10 @@ export const OrganizationForm = (props: Props) => {
           <Button className="flex-1" type="submit">
             Submit
           </Button>
-          <Button className="flex-1" variant="outline">
+          
+          {/* <Button className="flex-1"  variant="outline"  type="button" >
             Cancel
-          </Button>
+          </Button> */}
           {!!props?.init?.id && (
             <Button className="flex-1" variant="destructive">
               Delete

@@ -14,34 +14,34 @@ export const OrganizationAddressTable = () => {
   const orgId = Number(query.state.data.id);
   const [isAdd, setAdd] = useState(false);
 
-  const addresses = useSWR(
-    !!query.state.data.id ? "organization_address" : null,
+  const { data:addresses, error, isLoading } = useSWR(
+    !!query.state.data.id ? "address" : null,
     (key: string) => {
       const supabase = createClientComponentClient();
       return supabase
-        .from("organization_address")
-        .select(`address(id,street,zip,unit,deleted)`)
+        .from("address")
+        .select(`street,zip,unit)`)
         .eq("organization_id", orgId)
         .order("created_at");
     }
   );
 
-  if (addresses.isLoading) return <>...LOADING</>;
+  if (isLoading) return <>...LOADING</>;
 
   const onAddressAdd = () => {
     setAdd(false);
-    addresses.mutate();
+    // addresses?.mutate();
   };
 
   const onAddressRemove = async (id: number) => {
     const supabase = createClientComponentClient();
     await supabase
-      .from("organization_address")
+      .from("address")
       .delete()
       .eq("organization_id", orgId)
       .eq("address_id", id)
       .order("created_at");
-    addresses.mutate();
+    // addresses.mutate();
   };
 
   if (isAdd) {
@@ -87,7 +87,7 @@ export const OrganizationAddressTable = () => {
           },
         ]}
         //@ts-ignore
-        data={addresses.data?.data.map((ADD) => ADD.address) || []}
+        data={addresses.data}
       />
     </div>
   );
