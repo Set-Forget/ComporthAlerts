@@ -6,10 +6,14 @@ import { Input } from "@/components/ui/input";
 import { useRequireAuth } from "@/utils/hooks/auth";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { PlusCircleIcon } from "lucide-react";
+import { useState } from "react";
 import useSWR from "swr";
+import { AddressForm } from "./components";
 
 export default () => {
   useRequireAuth();
+  const [isCreatingAddress, setIsCreatingAddress] = useState(false);
+
   const userSWR = useSWR("address", (key: string) => {
     const supabase = createClientComponentClient();
     return supabase.from(key).select();
@@ -18,14 +22,23 @@ export default () => {
   if (userSWR.isLoading) return <>...LOADING</>;
 
   return (
+
     <div>
-      <div className="flex justify-between gap-3">
-        <Input placeholder="search" />
-        <Button>
-          <p className="mx-2">Create</p>
-          <PlusCircleIcon />
-        </Button>
-      </div>
+      {isCreatingAddress && (
+        <AddressForm
+          onCancel={() => setIsCreatingAddress(false)}
+        />
+      )}
+      {!isCreatingAddress && (
+        <div className="flex justify-between gap-3">
+          <Input placeholder="search" />
+
+          <Button className="gap-1" onClick={() => setIsCreatingAddress(true)}>
+            <p >Create</p>
+            <PlusCircleIcon />
+          </Button>
+        </div>
+      )}
       <DataTable
         headers={[
           {
@@ -43,6 +56,8 @@ export default () => {
         ]}
         data={(userSWR.data as any)?.data || []}
       />
+
+
     </div>
   );
 };

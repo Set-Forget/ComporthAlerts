@@ -14,6 +14,7 @@ import useSWR, { mutate } from "swr";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { OrganizationAddressTable, OrganizationUserTable } from "./table";
+import { PlusCircleIcon } from "lucide-react";
 
 export const OrganizationCRUD = () => {
   const query = useOrganizationQuery();
@@ -36,13 +37,14 @@ export const OrganizationCRUD = () => {
         query.onSet((_) => ({ data: null, type: "" }));
       }}
     >
-      <SheetTrigger asChild>
-        <Button
+      <SheetTrigger asChild className="flex justify-between gap-2">
+        <Button 
           onClick={() => {
             query.onSet(() => ({ type: "CREATE" }));
           }}
         >
-          create
+           <p>Create</p> 
+          <PlusCircleIcon />
         </Button>
       </SheetTrigger>
       <SheetClose />
