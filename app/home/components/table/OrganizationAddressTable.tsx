@@ -9,22 +9,33 @@ import { Button } from "@/components/ui/button";
 import { OrganizationAddressForm } from "../form";
 import { MinusCircle } from "lucide-react";
 
+
 export const OrganizationAddressTable = () => {
   const query = useOrganizationQuery();
   const orgId = Number(query.state.data.id);
   const [isAdd, setAdd] = useState(false);
 
-  const { data:addresses, error, isLoading } = useSWR(
-    !!query.state.data.id ? "address" : null,
+
+  
+
+  const { data, error, isLoading } = useSWR(
+    !!query.state.data.id ? "organization_address" : null,
     (key: string) => {
       const supabase = createClientComponentClient();
       return supabase
-        .from("address")
-        .select(`street,zip,unit)`)
-        .eq("organization_id", orgId)
-        .order("created_at");
+        .from(key)
+        .select(`address (id, street, zip, unit)`)
+        .eq("organization_id", orgId);
     }
   );
+
+
+  const addressData = data?.data.map((item) => ({
+    id: item.address.id,
+    street: item.address.street,
+    zip: item.address.zip,
+    unit: item.address.unit,
+  }))
 
   if (isLoading) return <>...LOADING</>;
 
@@ -36,12 +47,14 @@ export const OrganizationAddressTable = () => {
   const onAddressRemove = async (id: number) => {
     const supabase = createClientComponentClient();
     await supabase
-      .from("address")
+      .from("organization_address")
       .delete()
       .eq("organization_id", orgId)
       .eq("address_id", id)
-      .order("created_at");
-    // addresses.mutate();
+
+    mutate("organization_address");
+    console.log("deleted");
+    
   };
 
   if (isAdd) {
@@ -74,20 +87,16 @@ export const OrganizationAddressTable = () => {
           {
             accessorKey: "unit",
             header: "Unit",
-            cell: ({ row }) => (
-              <p>{!!row.original.unit ? row.original.unit : "--"}</p>
-            ),
+           
           },
           {
             accessorKey: "zip",
             header: "Zip Code",
-            cell: ({ row }) => (
-              <p>{!!row.original.zip ? row.original.zip : "--"}</p>
-            ),
+           
           },
         ]}
         //@ts-ignore
-        data={addresses.data}
+        data={addressData}
       />
     </div>
   );

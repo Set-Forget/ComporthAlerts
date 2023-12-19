@@ -9,6 +9,8 @@ import { UserForm } from "../../users/components";
 import { Button } from "@/components/ui/button";
 import { EyeIcon } from "lucide-react";
 
+
+
 export const OrganizationUserTable = () => {
   const query = useOrganizationQuery();
   const [form, setForm] = useState<{
@@ -19,21 +21,29 @@ export const OrganizationUserTable = () => {
     data: null,
   });
 
-  const { data:accounts, error, isLoading } = useSWR(
-    !!query.state.data.id ? "account" : null,
+  const { data, error, isLoading } = useSWR(
+    !!query.state.data.id ? "account_organization" : null,
     (key: string) => {
       const supabase = createClientComponentClient();
-      console.log(key);
-  
+
       return supabase
         .from(key)
-        .select(`full_name, email, phone, role`)
+        .select(`account (full_name, email, phone, role)`)
         .eq("organization_id", Number(query.state.data.id))
-        .is("deleted", false);
+        
+      
+        
     }
+      
   );
-  
 
+  const userData = data?.data.map((item) => ({
+    full_name: item.account.full_name,
+    email: item.account.email,
+    phone: item.account.phone,
+    role: item.account.role,
+  }))
+  
   if (isLoading) return <>...LOADING</>;
 
   if (form.type === "EDIT") {
@@ -107,7 +117,7 @@ export const OrganizationUserTable = () => {
         ]}
         
         //@ts-ignore
-        data={accounts.data }
+        data={userData || [] }
         
         
       />

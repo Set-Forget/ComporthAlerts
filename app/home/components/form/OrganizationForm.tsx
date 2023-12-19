@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface Props {
   init?: any;
   onSubmit?: () => void;
+  onDeleted?: () => void;
 }
 
 const initialize = (init?: any) => {
@@ -63,6 +64,27 @@ export const OrganizationForm = (props: Props) => {
     props.onSubmit?.();
   });
 
+  const onDelete = async () => {
+    const supabase = createClientComponentClient();
+    //safe daleted
+    const res = await supabase
+      .from("organization")
+      .update({ deleted: true })
+      .eq("id", Number(props.init.id));
+
+
+    if (res.error) {
+      return toast({
+        variant: "destructive",
+        title: res.error.code,
+        description: res.error.message,
+      });
+    }
+
+    toast({ title: "Successful" });
+    props.onDeleted?.();
+  }
+
   return (
     <Form {...form} >
       <form onSubmit={onSubmit} className="flex flex-col gap-2 p-2">
@@ -102,7 +124,12 @@ export const OrganizationForm = (props: Props) => {
             Cancel
           </Button> */}
           {!!props?.init?.id && (
-            <Button className="flex-1" variant="destructive">
+            <Button
+              className="flex-1"
+              variant="destructive"
+              type="button"
+              onClick={onDelete}
+            >
               Delete
             </Button>
           )}

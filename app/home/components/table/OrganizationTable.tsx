@@ -10,7 +10,8 @@ import { EyeIcon } from "lucide-react";
 export const OrganizationTable = () => {
   const orgSWR = useSWR("organization", (key: string) => {
     const supabase = createClientComponentClient();
-    return supabase.from(key).select();
+    //no mostrar los que tengan  el campo delted en true
+    return supabase.from(key).select("*").eq("deleted", false);
   });
   const query = useOrganizationQuery();
 

@@ -7,12 +7,31 @@ import { useRequireAuth } from "@/utils/hooks/auth";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { AddressForm } from "./components";
+import { useUserQuery } from "../components/use-user-query";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { UserForm } from "../users/components";
 
 export default () => {
   useRequireAuth();
-  const [isCreatingAddress, setIsCreatingAddress] = useState(false);
+  // const [isCreatingAddress, setIsCreatingAddress] = useState(false);
+
+  const query = useUserQuery();
+
+  const onSubmit = () => {
+    setTimeout(() => {
+      mutate("user");
+      query.onSet((s) => ({ data: null, type: "" }));
+    }, 500);
+  };
 
   const userSWR = useSWR("address", (key: string) => {
     const supabase = createClientComponentClient();
@@ -22,23 +41,34 @@ export default () => {
   if (userSWR.isLoading) return <>...LOADING</>;
 
   return (
-
     <div>
-      {isCreatingAddress && (
-        <AddressForm
-          onCancel={() => setIsCreatingAddress(false)}
-        />
-      )}
-      {!isCreatingAddress && (
-        <div className="flex justify-between gap-3">
-          <Input placeholder="search" />
-
-          <Button className="gap-1" onClick={() => setIsCreatingAddress(true)}>
-            <p >Create</p>
+      <Sheet
+        open={!!query.state.type}
+        onOpenChange={(bool) => {
+          if (bool) return;
+          query.onSet((_) => ({ data: null, type: "" }));
+        }}
+      >
+        <SheetTrigger asChild className="flex justify-between gap-1">
+          <Button
+            onClick={() => {
+              query.onSet(() => ({ type: "CREATE" }));
+            }}
+          >
+            <p className="">Create</p>
             <PlusCircleIcon />
           </Button>
-        </div>
-      )}
+        </SheetTrigger>
+
+        <SheetClose />
+        <SheetContent className="min-w-[700px]">
+          <SheetHeader>
+            <SheetTitle>Address</SheetTitle>
+          </SheetHeader>
+          {query.state.type === "CREATE" && <AddressForm onSubmit={onSubmit} />}
+        </SheetContent>
+      </Sheet>
+
       <DataTable
         headers={[
           {
@@ -56,8 +86,6 @@ export default () => {
         ]}
         data={(userSWR.data as any)?.data || []}
       />
-
-
     </div>
   );
 };

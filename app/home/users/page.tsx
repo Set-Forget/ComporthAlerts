@@ -34,7 +34,7 @@ export default () => {
 
   const userSWR = useSWR("account", (key: string) => {
     const supabase = createClientComponentClient();
-    return supabase.from(key).select("*").range(0, 9);
+    return supabase.from(key).select("*");
   });
 
   if (userSWR.isLoading) return <>...LOADING</>;
