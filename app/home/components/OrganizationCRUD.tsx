@@ -37,13 +37,13 @@ export const OrganizationCRUD = () => {
         query.onSet((_) => ({ data: null, type: "" }));
       }}
     >
-      <SheetTrigger asChild className="flex justify-between gap-2">
+      <SheetTrigger asChild className="flex justify-between gap-1">
         <Button 
           onClick={() => {
             query.onSet(() => ({ type: "CREATE" }));
           }}
         >
-           <p>Create</p> 
+           <p className="">Create</p> 
           <PlusCircleIcon />
         </Button>
       </SheetTrigger>

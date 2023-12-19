@@ -7,11 +7,12 @@ import { RHFSlot } from "@/components/CRUD/slot";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
+import Select from "react-select";
 
 interface Props {
   init?: any;
   onSubmit?: (data?: any) => void;
-  onCancel: () => void;
 }
 
 const initialize = (init?: any) => {
@@ -20,7 +21,7 @@ const initialize = (init?: any) => {
     email: init?.email || "",
     phone: init?.phone || "",
     role: init?.role || "",
-    organization: init?.organization_id
+    organization: init?.organization_id || null, // Usar el valor seleccionado
   };
 };
 
@@ -31,15 +32,64 @@ export const UserForm = (props: Props) => {
     email: string;
     phone: string;
     role: string;
-    organization: number;
+    organization: string;
   }>({
     defaultValues: initialize(props.init),
   });
 
+  const [isClearable, setIsClearable] = useState(true);
+  const [isSearchable, setIsSearchable] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRtl, setIsRtl] = useState(false);
+
+  const [organizations, setOrganizations] = useState<{ name: any }[]>([]);
+  const [selectedOrganization, setSelectedOrganization] =
+    useState<SelectOption | null>(null);
+
+  interface SelectOption {
+    label: string;
+    value: string;
+  }
+
+  const organizationId = async (organizationName: string) => {
+    const supabase = createClientComponentClient();
+
+    const res = await supabase
+      .from("organization")
+      .select("id")
+      .eq("name", organizationName)
+      .single();
+    if (res.error) {
+      return toast({
+        variant: "destructive",
+        title: res.error?.code,
+        description: res.error?.message,
+      });
+    }
+    return res.data.id; // Devuelve un objeto con la propiedad 'id'
+  };
+
+  const getOrganizations = async () => {
+    const supabase = createClientComponentClient();
+    const res = await supabase
+      .from("organization")
+      .select("name")
+      .eq("deleted", false);
+    if (res.error) {
+      return [];
+    }
+    setOrganizations(res.data.map((org) => ({ name: org.name })));
+  };
+
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
+    const organizationIdValue = await organizationId((draft.organization as any)?.value);
+
+    
+
     if (!props.init) {
-      const res = await supabase
+      const resUser = await supabase
         .from("account")
         .insert([
           {
@@ -47,66 +97,42 @@ export const UserForm = (props: Props) => {
             email: draft.email,
             phone: draft.phone,
             role: draft.role,
-            organization_id: draft.organization
           },
         ])
         .select();
 
-      if (res.error) {
-        return toast({
-          title: res.error.code,
-          variant: "destructive",
-          description: res.error.message,
-        });
+      const accountId = resUser.data?.[0]?.id;
+        
+
+        const resUserOrganization = await supabase
+          .from("account_organization")
+          .insert([
+            {
+              account_id: accountId,
+              organization_id: organizationIdValue, // Usa la variable organizationId
+            },
+          ])
+          .select();
+
+        console.log(resUserOrganization);
+
+        if (resUser.error || resUserOrganization.error) {
+          return toast({
+            title: resUser.error?.code || resUserOrganization.error?.code,
+            variant: "destructive",
+            description: resUserOrganization.error?.message,
+          });
+        }
+
+        props.onSubmit?.(resUser.data[0]);
+        toast({ title: "Successful" });
       }
-
-      props.onSubmit?.(res.data[0]);
-      toast({ title: "Successful" });
-    } else {
-      const res = await supabase
-        .from("account")
-        .update({
-          full_name: draft.full_name,
-          email: draft.email,
-          phone: draft.phone,
-          role: draft.role,
-          organization_id: draft.organization
-        })
-        .eq("id", Number(props.init.id))
-        .select();
-
-      if (res.error) {
-        return toast({
-          variant: "destructive",
-          title: res.error.code,
-          description: res.error.message,
-        });
-      }
-
-      props.onSubmit?.(res.data[0]);
-      toast({ title: "Successful" });
     }
-  });
+  );
 
-  const onDelete = async () => {
-    const supabase = createClientComponentClient();
-    const res = await supabase
-      .from("account")
-      .update({
-        deleted: true,
-      })
-      .eq("id", Number(props.init.id))
-      .select();
-    if (res.error) {
-      return toast({
-        variant: "destructive",
-        title: res.error.code,
-        description: res.error.message,
-      });
-    }
-    // props.onSubmit?.(res.data[0]);
-    toast({ title: "Successful" });
-  };
+  useEffect(() => {
+    getOrganizations();
+  }, []);
 
   return (
     <Form {...form}>
@@ -161,26 +187,48 @@ export const UserForm = (props: Props) => {
             },
           })}
         />
+
         <FormField
           control={form.control}
           name="organization"
-          render={RHFSlot({
-            label: "Organization",
-            rhf: "Input",
-          })}
+          render={({ field }) => (
+            <div className="flex flex-col gap-1 py-2">
+              <label className="text-sm font-medium text-gray-900">
+                Organization
+              </label>
+              <Select
+                {...field}
+                className="basic-single"
+                classNamePrefix="select"
+                defaultValue={organizations.length > 0 ? organizations[0].name : ""}
+                isDisabled={isDisabled}
+                isLoading={isLoading}
+                isClearable={isClearable}
+                isRtl={isRtl}
+                isSearchable={isSearchable}
+                name="organization"
+                options={organizations.map((org) => ({
+                  label: org.name,
+                  value: org.name,
+                }))}
+                theme={(theme) => ({
+                  ...theme,
+                  borderRadius: 5,
+                  colors: {
+                    ...theme.colors,
+                    primary25: 'silver',
+                    primary: 'silver',
+                  },
+                })}
+              />
+            </div>
+          )}
         />
+
         <div className="flex gap-2 items-center mt-6">
           <Button className="flex-1" type="submit">
             Submit
           </Button>
-          <Button onClick={props.onCancel} className="flex-1" variant="outline">
-            Cancel
-          </Button>
-          {!!props?.init?.id && (
-            <Button onClick={onDelete} className="flex-1" variant="destructive">
-              Delete
-            </Button>
-          )}
         </div>
       </form>
     </Form>
