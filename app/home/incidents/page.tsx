@@ -9,6 +9,7 @@ import { useRequireAuth } from "@/utils/hooks/auth";
 const IncidentsPage: React.FC = () => {
   useRequireAuth();
   const { incidents, loading } = useIncidentsFetcher();
+  
 
 
 

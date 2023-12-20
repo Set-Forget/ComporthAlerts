@@ -35,15 +35,18 @@ export const useIncidentsFetcher = () => {
           const role = await fetchAccountRole();
           const organization = await fetchAccountOrganization();
 
+          
+
           let fetchedIncidents = [];
 
           if (role === "admin") {
             const data = await fetchAdminIncidents();
             //mostrar 100 filas nomas
-
-            fetchedIncidents = data.rows.slice(0, 500)
-            console.log(fetchedIncidents);
             
+            
+          
+            fetchedIncidents = data.rows
+
           } else if (role === "client" && organization) {
             const data = await fetchClientIncidents(organization);
             fetchedIncidents = data.rows;
