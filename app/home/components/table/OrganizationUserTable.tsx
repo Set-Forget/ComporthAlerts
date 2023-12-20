@@ -9,8 +9,6 @@ import { UserForm } from "../../users/components";
 import { Button } from "@/components/ui/button";
 import { EyeIcon } from "lucide-react";
 
-
-
 export const OrganizationUserTable = () => {
   const query = useOrganizationQuery();
   const [form, setForm] = useState<{
@@ -29,28 +27,27 @@ export const OrganizationUserTable = () => {
       return supabase
         .from(key)
         .select(`account (full_name, email, phone, role)`)
-        .eq("organization_id", Number(query.state.data.id))
-        
-      
-        
+        .eq("organization_id", Number(query.state.data.id));
     }
-      
   );
 
-  const userData = data?.data.map((item: { account: { full_name: any; email: any; phone: any; role: any; }; }) => ({
-    full_name: item.account.full_name,
-    email: item.account.email,
-    phone: item.account.phone,
-    role: item.account.role,
-  }))
-  
+  const userData = data?.data.map(
+    (item: {
+      account: { full_name: any; email: any; phone: any; role: any };
+    }) => ({
+      full_name: item.account.full_name,
+      email: item.account.email,
+      phone: item.account.phone,
+      role: item.account.role,
+    })
+  );
+
   if (isLoading) return <>...LOADING</>;
 
   if (form.type === "EDIT") {
     return (
       <UserForm
         init={form.data}
-        onCancel={() => setForm({ data: null, type: "" })}
         onSubmit={() => {
           setTimeout(() => {
             mutate("organization_account");
@@ -64,7 +61,6 @@ export const OrganizationUserTable = () => {
   if (form.type === "CREATE") {
     return (
       <UserForm
-        onCancel={() => setForm({ data: null, type: "" })}
         onSubmit={async (data) => {
           const supabase = createClientComponentClient();
           await supabase
@@ -89,7 +85,7 @@ export const OrganizationUserTable = () => {
       >
         + Add
       </Button>
-      
+
       <DataTable
         rowIcon={(data) => (
           <EyeIcon
@@ -115,13 +111,9 @@ export const OrganizationUserTable = () => {
             header: "Role",
           },
         ]}
-        
         //@ts-ignore
-        data={userData || [] }
-        
-        
+        data={userData || []}
       />
-      
     </div>
   );
 };
