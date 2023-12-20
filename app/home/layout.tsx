@@ -3,8 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { Header, SidebarNav } from "./components";
 
 export const metadata = {
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Comporth Alerts",
+  description: "Comporth Alerts",
 };
 
 export default async ({ children }: { children: React.ReactNode }) => {

@@ -8,8 +8,8 @@ const defaultUrl = process.env.NEXT_PUBLIC_VERCEL_WEB_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Comporth Alerts",
+  description: "Comporth Alerts",
 };
 
 export default function RootLayout({
