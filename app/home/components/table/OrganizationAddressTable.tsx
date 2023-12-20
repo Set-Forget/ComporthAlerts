@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OrganizationAddressForm } from "../form";
 import { MinusCircle } from "lucide-react";
+import { da } from "date-fns/locale";
 
 
 export const OrganizationAddressTable = () => {
@@ -18,7 +19,7 @@ export const OrganizationAddressTable = () => {
 
   
 
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading } = useSWR<any>(
     !!query.state.data.id ? "organization_address" : null,
     (key: string) => {
       const supabase = createClientComponentClient();
@@ -30,12 +31,13 @@ export const OrganizationAddressTable = () => {
   );
 
 
-  const addressData = data?.data.map((item) => ({
+  const addressData = data?.data.map((item: { address: { id: any; street: any; zip: any; unit: any; }; }) => ({
     id: item.address.id,
     street: item.address.street,
     zip: item.address.zip,
     unit: item.address.unit,
   }))
+
 
   if (isLoading) return <>...LOADING</>;
 
