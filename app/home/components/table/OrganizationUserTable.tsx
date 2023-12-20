@@ -21,7 +21,7 @@ export const OrganizationUserTable = () => {
     data: null,
   });
 
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading } = useSWR<any>(
     !!query.state.data.id ? "account_organization" : null,
     (key: string) => {
       const supabase = createClientComponentClient();
@@ -37,7 +37,7 @@ export const OrganizationUserTable = () => {
       
   );
 
-  const userData = data?.data.map((item) => ({
+  const userData = data?.data.map((item: { account: { full_name: any; email: any; phone: any; role: any; }; }) => ({
     full_name: item.account.full_name,
     email: item.account.email,
     phone: item.account.phone,
