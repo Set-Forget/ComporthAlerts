@@ -5,80 +5,129 @@ import useSWR, { mutate } from "swr";
 import { DataTable } from "@/components/DataTable";
 import { useOrganizationQuery } from "../use-organization-query";
 import { useState } from "react";
+import { UserForm } from "../../users/components";
 import { Button } from "@/components/ui/button";
-import { OrganizationAddressForm } from "../form";
-import { MinusCircle } from "lucide-react";
-import { da } from "date-fns/locale";
-
+import { MinusCircle, PlusCircle } from "lucide-react";
 
 export const OrganizationAddressTable = () => {
   const query = useOrganizationQuery();
+  const [form, setForm] = useState<{
+    type: "EDIT" | "CREATE" | "";
+    data: any | null;
+  }>({
+    type: "",
+    data: null,
+  });
+
   const orgId = Number(query.state.data.id);
-  const [isAdd, setAdd] = useState(false);
 
-
-  
-
-  const { data, error, isLoading } = useSWR<any>(
-    !!query.state.data.id ? "organization_address" : null,
+  //muestra todos los address de la organizacion
+  const { data: addressesAccount, isLoading } = useSWR<any>(
+    !!query.state.data.id ? `organization_address${query.state.data.id}` : null,
     (key: string) => {
       const supabase = createClientComponentClient();
       return supabase
-        .from(key)
+        .from("organization_address")
         .select(`address (id, street, zip, unit)`)
-        .eq("organization_id", orgId);
+        .eq("organization_id", Number(query.state.data.id));
     }
   );
 
+  console.log("address", addressesAccount);
 
-  const addressData = data?.data.map((item: { address: { id: any; street: any; zip: any; unit: any; }; }) => ({
-    id: item.address.id,
-    street: item.address.street,
-    zip: item.address.zip,
-    unit: item.address.unit,
-  }))
+  const {
+    data: responseAddressAdd,
+    error: error2,
+    isLoading: isLoading2,
+  } = useSWR<any>(
+    !!query.state.data.id
+      ? `organization_address_neq_${query.state.data.id}`
+      : null,
+    (key: string) => {
+      const supabase = createClientComponentClient();
+      return supabase
+        .from("address")
+        .select(
+          `
+          id, street, zip, unit, organization_address(organization_id)`
+        )
+        .neq(
+          "organization_address.organization_id",
+          Number(query.state.data.id)
+        );
+    }
+  );
 
+  const addressData = addressesAccount?.data.map(
+    (item: { address: { id: any; street: any; zip: any; unit: any } }) => ({
+      id: item.address.id,
+      street: item.address.street,
+      zip: item.address.zip,
+      unit: item.address.unit,
+    })
+  );
+
+  const associatedAddressIds = new Set(
+    addressesAccount?.data.map(
+      (item: { address: { id: any } }) => item.address.id
+    )
+  );
+
+  const addressDataAdd = responseAddressAdd?.data
+    .filter((item: { id: any }) => !associatedAddressIds.has(item.id))
+    .map((item: { id: any; street: any; zip: any; unit: any }) => ({
+      id: item.id,
+      street: item.street,
+      zip: item.zip,
+      unit: item.unit,
+    }));
 
   if (isLoading) return <>...LOADING</>;
 
-  const onAddressAdd = () => {
-    setAdd(false);
-    // addresses?.mutate();
-  };
-
+  if (form.type === "EDIT") {
+    return (
+      <UserForm
+        init={form.data}
+        onSubmit={() => {
+          setTimeout(() => {
+            mutate("organization_address");
+            setForm({ type: "", data: null });
+          }, 500);
+        }}
+      />
+    );
+  }
   const onAddressRemove = async (id: number) => {
     const supabase = createClientComponentClient();
     await supabase
       .from("organization_address")
       .delete()
       .eq("organization_id", orgId)
-      .eq("address_id", id)
+      .eq("address_id", id);
 
     mutate("organization_address");
-    console.log("deleted");
-    
   };
 
-  if (isAdd) {
+  if (form.type === "CREATE") {
     return (
-      <div className="w-auto">
-        <OrganizationAddressForm onSubmit={onAddressAdd} orgId={orgId} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative py-2">
-      <div className="absolute -top-12 right-0 gap-2 flex flex-row ">
-        <Button onClick={() => setAdd(true)} className="">
-          + Add
-        </Button>
-      </div>
       <DataTable
         rowIcon={(data) => (
-          <MinusCircle
-            className="text-red-300 cursor-pointer"
-            onClick={async () => await onAddressRemove(data.id)}
+          <PlusCircle
+            className="cursor-pointer"
+            onClick={() => {
+              const supabase = createClientComponentClient();
+              supabase
+                .from("organization_address")
+                .insert([
+                  { organization_id: query.state.data.id, address_id: data.id },
+                ])
+                .then(() => {
+                  setTimeout(() => {
+                    mutate("organization_address");
+                    setForm({ type: "", data: null });
+                  }, 500);
+                });
+            }}
           />
         )}
         headers={[
@@ -89,16 +138,50 @@ export const OrganizationAddressTable = () => {
           {
             accessorKey: "unit",
             header: "Unit",
-           
           },
           {
             accessorKey: "zip",
             header: "Zip Code",
-           
           },
         ]}
         //@ts-ignore
-        data={addressData}
+        data={addressDataAdd || []}
+      />
+    );
+  }
+
+  return (
+    <div className="relative py-2">
+      <Button
+        onClick={() => setForm({ type: "CREATE", data: null })}
+        className="absolute -top-12 right-0"
+      >
+        + Add
+      </Button>
+
+      <DataTable
+        rowIcon={(data) => (
+          <MinusCircle
+            className="cursor-pointer text-red-300"
+            onClick={() => onAddressRemove(Number(data.id))}
+          />
+        )}
+        headers={[
+          {
+            accessorKey: "street",
+            header: "Street",
+          },
+          {
+            accessorKey: "unit",
+            header: "Unit",
+          },
+          {
+            accessorKey: "zip",
+            header: "Zip Code",
+          },
+        ]}
+        //@ts-ignore
+        data={addressData || []}
       />
     </div>
   );

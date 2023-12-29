@@ -7,7 +7,8 @@ import { useOrganizationQuery } from "../use-organization-query";
 import { useState } from "react";
 import { UserForm } from "../../users/components";
 import { Button } from "@/components/ui/button";
-import { EyeIcon } from "lucide-react";
+import { MinusCircle, PlusCircle } from "lucide-react";
+
 
 export const OrganizationUserTable = () => {
   const query = useOrganizationQuery();
@@ -19,22 +20,67 @@ export const OrganizationUserTable = () => {
     data: null,
   });
 
-  const { data, error, isLoading } = useSWR<any>(
-    !!query.state.data.id ? "account_organization" : null,
+  const onUserRemove = async (id: number) => {
+    const supabase = createClientComponentClient();
+    await supabase
+      .from("account_organization")
+      .delete()
+      .eq("account_id", Number(id))
+      .eq("organization_id", Number(query.state.data.id));
+
+    mutate("account_organization");
+  };
+
+  //muestra todos los user de la organizacion
+  const {
+    data: data1,
+    error,
+    isLoading,
+  } = useSWR<any>(
+    !!query.state.data.id
+      ? `account_organization_eq_${query.state.data.id}`
+      : null,
     (key: string) => {
       const supabase = createClientComponentClient();
-
       return supabase
-        .from(key)
-        .select(`account (full_name, email, phone, role)`)
+        .from("account_organization")
+        .select(`account (id, full_name, email, phone, role)`)
         .eq("organization_id", Number(query.state.data.id));
     }
   );
 
-  const userData = data?.data.map(
+
+  //muestra todos los user disponibles
+  const {
+    data: responseUserAdd,
+    error: error2,
+    isLoading: isLoading2,
+  } = useSWR<any>(
+    !!query.state.data.id
+      ? `account_organization_neq_${query.state.data.id}`
+      : null,
+    (key: string) => {
+      const supabase = createClientComponentClient();
+      return supabase
+        .from("account")
+        .select(
+          `
+          id,
+          full_name,
+          email, account_organization(organization_id)`
+        )
+        .neq(
+          "account_organization.organization_id",
+          Number(query.state.data.id)
+        );
+    }
+  );
+
+  const userData = data1?.data.map(
     (item: {
-      account: { full_name: any; email: any; phone: any; role: any };
+      account: { id: any; full_name: any; email: any; phone: any; role: any };
     }) => ({
+      id: item.account.id,
       full_name: item.account.full_name,
       email: item.account.email,
       phone: item.account.phone,
@@ -42,7 +88,19 @@ export const OrganizationUserTable = () => {
     })
   );
 
-  if (isLoading) return <>...LOADING</>;
+  if (isLoading || isLoading2) return <>...LOADING</>;
+
+  const associatedAccountIds = new Set(
+    data1?.data.map((item: { account: { id: any } }) => item.account.id)
+  );
+
+  const userDataAdd = responseUserAdd?.data
+    .filter((item: { id: any }) => !associatedAccountIds.has(item.id))
+    .map((item: { id: any; full_name: any; email: any }) => ({
+      id: item.id,
+      full_name: item.full_name,
+      email: item.email,
+    }));
 
   if (form.type === "EDIT") {
     return (
@@ -50,7 +108,7 @@ export const OrganizationUserTable = () => {
         init={form.data}
         onSubmit={() => {
           setTimeout(() => {
-            mutate("organization_account");
+            mutate("account_organization");
             setForm({ type: "", data: null });
           }, 500);
         }}
@@ -60,19 +118,38 @@ export const OrganizationUserTable = () => {
 
   if (form.type === "CREATE") {
     return (
-      <UserForm
-        onSubmit={async (data) => {
-          const supabase = createClientComponentClient();
-          await supabase
-            .from("organization_account")
-            .insert([
-              { organization_id: query.state.data.id, account_id: data.id },
-            ]);
-          setTimeout(() => {
-            mutate("organization_account");
-            setForm({ type: "", data: null });
-          }, 500);
-        }}
+      <DataTable
+        rowIcon={(data) => (
+          <PlusCircle
+            className="cursor-pointer"
+            onClick={() => {
+              const supabase = createClientComponentClient();
+              supabase
+                .from("account_organization")
+                .insert([
+                  { account_id: data.id, organization_id: query.state.data.id },
+                ])
+                .then(() => {
+                  setTimeout(() => {
+                    mutate("account_organization");
+                    setForm({ type: "", data: null });
+                  }, 500);
+                });
+            }}
+          />
+        )}
+        headers={[
+          {
+            accessorKey: "full_name",
+            header: "Name",
+          },
+          {
+            accessorKey: "email",
+            header: "Email",
+          },
+        ]}
+        //@ts-ignore
+        data={userDataAdd || []}
       />
     );
   }
@@ -88,9 +165,9 @@ export const OrganizationUserTable = () => {
 
       <DataTable
         rowIcon={(data) => (
-          <EyeIcon
-            className="cursor-pointer"
-            onClick={() => setForm({ type: "EDIT", data })}
+          <MinusCircle
+            className="cursor-pointer text-red-300"
+            onClick={() => onUserRemove(Number(data.id))}
           />
         )}
         headers={[
