@@ -3,16 +3,16 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import useSWR from "swr";
 import { DataTable } from "@/components/DataTable";
-import { useOrganizationQuery } from "../use-organization-query";
+import { useUserQuery } from "../use-user-query";
 import { EyeIcon } from "lucide-react";
 
-export const OrganizationTable = () => {
-  const orgSWR = useSWR("organization", (key: string) => {
+export const UserTable = () => {
+  const orgSWR = useSWR("account", (key: string) => {
     const supabase = createClientComponentClient();
     //no mostrar los que tengan  el campo delted en true
     return supabase.from(key).select("*").eq("deleted", false);
   });
-  const query = useOrganizationQuery();
+  const query = useUserQuery();
 
   if (orgSWR.isLoading) return <>...LOADING</>;
 
@@ -26,7 +26,7 @@ export const OrganizationTable = () => {
       )}
       headers={[
         {
-          accessorKey: "name",
+          accessorKey: "full_name",
           header: "Name",
         },
         {
@@ -35,7 +35,11 @@ export const OrganizationTable = () => {
         },
         {
           accessorKey: "phone",
-          header: "Phone",
+          header: "Contact",
+        },
+        {
+          accessorKey: "role",
+          header: "Role",
         },
       ]}
       //@ts-ignore

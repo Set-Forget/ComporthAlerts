@@ -204,14 +204,6 @@ export const AddressForm = (props: Props) => {
           <Button className="flex-1" type="submit">
             Submit
           </Button>
-          <Button
-            type="button"
-            className="flex-1"
-            variant="outline"
-            onClick={() => form.reset()}
-          >
-            Cancel
-          </Button>
         </div>
       </form>
     </Form>

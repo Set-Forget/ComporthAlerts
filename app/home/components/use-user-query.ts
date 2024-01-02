@@ -3,7 +3,7 @@ import { useLzQuery } from "@/utils/hooks";
 export const useUserQuery = () => {
   return useLzQuery<{
     data: any;
-    type: "CREATE" | "";
+    type: "CREATE" | "READ" | "";
   }>({
     key: "crud",
     initValue: {
