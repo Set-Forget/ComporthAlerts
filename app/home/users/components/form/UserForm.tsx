@@ -8,7 +8,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
-import Select from "react-select";
+
 
 interface Props {
   init?: any;
@@ -43,6 +43,8 @@ export const UserForm = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRtl, setIsRtl] = useState(false);
 
+  const [role, setUserRole] = useState<string>("");
+
   const [organizations, setOrganizations] = useState<{ name: any }[]>([]);
   const [selectedOrganization, setSelectedOrganization] =
     useState<SelectOption | null>(null);
@@ -52,8 +54,34 @@ export const UserForm = (props: Props) => {
     value: string;
   }
 
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const supabaseClient = createClientComponentClient();
+      try {
+        const userEmail = (await supabaseClient.auth.getSession()).data.session?.user.email;
+        if (userEmail) {
+          const { data, error } = await supabaseClient
+            .from("account")
+            .select("role")
+            .eq("email", userEmail)
+            .single();
+
+          if (error) throw error;
+          setUserRole(data?.role);
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
+ 
+
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
+
+
 
     if (!props.init) {
       const resUser = await supabase
@@ -111,6 +139,8 @@ export const UserForm = (props: Props) => {
             rhf: "Input",
           })}
         />
+
+        {role === "admin" && (
         <FormField
           control={form.control}
           name="role"
@@ -131,10 +161,15 @@ export const UserForm = (props: Props) => {
                   label: "Customer",
                   value: "customer",
                 },
+                {
+                  label: "Pending",
+                  value: "pending",
+                }
               ],
             },
           })}
         />
+        )}
 
         <div className="flex gap-2 items-center mt-6">
           <Button className="flex-1" type="submit">

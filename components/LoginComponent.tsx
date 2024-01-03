@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from 'next/router';
-import { error } from "console";
+import { useRouter } from "next/router";
+import { useToast } from "@/components/ui/use-toast";
 
 const LoginComponent = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -14,6 +14,7 @@ const LoginComponent = () => {
     phone: "",
   });
   const supabase = createClientComponentClient();
+  const { toast } = useToast();
 
   const toggleSignUp = () => {
     setIsSignUp(!isSignUp);
@@ -37,7 +38,7 @@ const LoginComponent = () => {
             password: formData.password,
           }
         );
-        
+
         const { data: addUser, error: errorAddUser } = await supabase
           .from("account")
           .insert([
@@ -47,12 +48,25 @@ const LoginComponent = () => {
               phone: formData.phone,
             },
           ]);
-          isSignUp && !errorsignUp && !errorAddUser && toggleSignUp()
+        if (errorsignUp || errorAddUser) {
+          toast({
+            title: "Registration Error",
+            description: errorsignUp?.message || errorAddUser?.message,
+          });
+        }
+        toast({
+          title: "Registration Successful",
+          description: "You have successfully registered!",
+        });
+        isSignUp && !errorsignUp && !errorAddUser && toggleSignUp();
       } else if (isForgotPassword) {
         const { data } = await supabase.auth.resetPasswordForEmail(
           formData.email
         );
-        console.log("reset", data);
+        toast({
+          title: "Password Reset Request Sent",
+          description: "Check your email to reset your password.",
+        });
       } else {
         const { data } = await supabase.auth.signInWithPassword({
           email: formData.email,
@@ -60,17 +74,16 @@ const LoginComponent = () => {
         });
 
         if (data) {
+          toast({
+            title: "Login Successful",
+            description: "You have successfully logged in.",
+          });
           localStorage.clear();
+          useRouter().push("/home");
         }
-        console.log("signin", data);
       }
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
-
-  
-  
 
   if (isForgotPassword) {
     return (
