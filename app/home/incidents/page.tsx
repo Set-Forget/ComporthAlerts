@@ -2,16 +2,9 @@
 import React from "react";
 import { DataTable } from "@/components/DataTable";
 import { useIncidentsFetcher } from "./components/incidentFetch";
-import { useRequireAuth } from "@/utils/hooks/auth";
-
-
 
 const IncidentsPage: React.FC = () => {
-  useRequireAuth();
   const { incidents, loading } = useIncidentsFetcher();
-  
-
-
 
   if (loading) {
     return <p>Loading...</p>;
@@ -26,12 +19,11 @@ const IncidentsPage: React.FC = () => {
   }
 
   const handleRefreshData = () => {
-      // Borra los datos almacenados en localStorage
-      localStorage.removeItem("incidents");
-      // Recarga la página para obtener datos actualizados
-      window.location.reload();
-    };
-
+    // Borra los datos almacenados en localStorage
+    localStorage.removeItem("incidents");
+    // Recarga la página para obtener datos actualizados
+    window.location.reload();
+  };
 
   return (
     <div className="flex flex-col space-y-2 relative">

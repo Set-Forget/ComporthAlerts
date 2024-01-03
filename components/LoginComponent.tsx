@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from 'next/router';
+import { error } from "console";
 
 const LoginComponent = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -44,7 +46,7 @@ const LoginComponent = () => {
               phone: formData.phone,
             },
           ]);
-        console.log("signup and insert", signUp, addUser);
+          isSignUp && !errorsignUp && !errorAddUser && toggleSignUp()
       } else if (isForgotPassword) {
         const { data } = await supabase.auth.resetPasswordForEmail(
           formData.email
@@ -61,6 +63,9 @@ const LoginComponent = () => {
       console.log(error);
     }
   };
+
+
+  
 
   if (isForgotPassword) {
     return (
