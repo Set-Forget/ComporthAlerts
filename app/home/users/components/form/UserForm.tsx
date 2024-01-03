@@ -188,43 +188,7 @@ export const UserForm = (props: Props) => {
           })}
         />
 
-        <FormField
-          control={form.control}
-          name="organization"
-          render={({ field }) => (
-            <div className="flex flex-col gap-1 py-2">
-              <label className="text-sm font-medium text-gray-900">
-                Organization
-              </label>
-              <Select
-                {...field}
-                className="basic-single"
-                classNamePrefix="select"
-                defaultValue={organizations.length > 0 ? organizations[0].name : ""}
-                isDisabled={isDisabled}
-                isLoading={isLoading}
-                isClearable={isClearable}
-                isRtl={isRtl}
-                isSearchable={isSearchable}
-                name="organization"
-                options={organizations.map((org) => ({
-                  label: org.name,
-                  value: org.name,
-                }))}
-                theme={(theme) => ({
-                  ...theme,
-                  borderRadius: 5,
-                  colors: {
-                    ...theme.colors,
-                    primary25: 'silver',
-                    primary: 'silver',
-                  },
-                })}
-              />
-            </div>
-          )}
-        />
-
+        
         <div className="flex gap-2 items-center mt-6">
           <Button className="flex-1" type="submit">
             Submit

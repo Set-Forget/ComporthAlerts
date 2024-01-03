@@ -9,6 +9,8 @@ import {
   ThemeSupa,
 } from '@supabase/auth-ui-shared'
 import { useEffect } from "react";
+import SignUpUserSteps from "@/components/SignUpUserSteps";
+import LoginComponent from "@/components/LoginComponent";
 
 export default () => {
   const router = useRouter()
@@ -26,16 +28,15 @@ export default () => {
   return (
 
 
-    <div className="rounded-lg border-2 border-black-400 w-[90%] m-auto mt-[10%] overflow-hidden relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-        <div className="absolute inset-0 bg-regal-blue" />
+    <div className="rounded-lg border-2 w-full m-auto max-h-screen h-screen  overflow-hidden relative hidden  flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div className=" flex-col hidden h-full bg-regal-blue bg-muted p-10 text-white dark:border-r  lg:flex">
         <div className="relative z-20 flex items-center justify-center">
           <img
             className="h-24"
             src="https://comporth.com/wp-content/uploads/2023/05/Comporth-blackwhite-with-subheader-14-14.png"
           />
         </div>
-        <div className="flex gap-2 z-20 mt-auto justify-center">
+        <div className="flex flex-row absolute bottom-16 self-center z-20 space-x-2 justify-center">
           <button className="rounded-full border-2 p-2">
             <LinkedinIcon />
           </button>
@@ -47,7 +48,7 @@ export default () => {
           </button>
         </div>
       </div>
-      <div className="lg:p-8">
+      {/* <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
@@ -55,9 +56,10 @@ export default () => {
               Contact your admin for access
             </p>
           </div>
-          <div className="space-y-6 m-auto">
-            <Auth supabaseClient={supabase} providers={[]} appearance={{ theme: ThemeSupa }} />
-          </div>
+          <div className="space-y-6 m-auto"> */}
+            {/* <Auth supabaseClient={supabase} providers={[]} appearance={{ theme: ThemeSupa }} /> */}
+            <LoginComponent />
+          {/* </div>
           <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
             <Link
@@ -76,7 +78,7 @@ export default () => {
             .
           </p>
         </div>
-      </div>
+      </div> */}
 
     </div>
 

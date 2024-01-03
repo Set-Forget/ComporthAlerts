@@ -33,7 +33,7 @@ export const useIncidentsFetcher = () => {
       const fetchData = async () => {
         try {
           const role = await fetchAccountRole();
-          const organization = await fetchAccountOrganization();
+          const organizations = await fetchAccountOrganization();
 
           
 
@@ -47,8 +47,9 @@ export const useIncidentsFetcher = () => {
           
             fetchedIncidents = data.rows
 
-          } else if (role === "client" && organization) {
-            const data = await fetchClientIncidents(organization);
+          } else if (role === "client" && organizations) {
+            const data = await fetchClientIncidents(organizations);
+            
             fetchedIncidents = data.rows;
           }
 

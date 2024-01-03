@@ -41,11 +41,12 @@ export const fetchOrganizationAccountId = async () => {
     const email = await fetchAccountEmail();
     const { data } = await supabase
       .from("account")
-      .select("organization_id")
+      .select("id")
       .eq("email", email)
       .single();
 
-    return data?.organization_id || null;
+
+    return data?.id || null;
   } catch (error) {
     console.error("Error fetching organization ID:", error);
     return null;
@@ -55,13 +56,16 @@ export const fetchOrganizationAccountId = async () => {
 export const fetchAccountOrganization = async () => {
   try {
     const id = await fetchOrganizationAccountId();
-    const { data } = await supabase 
-      .from("organization")
-      .select("name")
-      .eq("id", id)
-      .single();
-
-    return data?.name || null;
+    const response : any = await supabase 
+      .from("account_organization")
+      .select("organization (name)")
+      .eq("account_id", id)
+    
+      const organizationNames = response.data.map((item: { organization: { name: any; }; }) => item.organization.name);
+      const formattedOrganizationNames = organizationNames.map((name: string) => `'${name.replace(/'/g, "''")}'`).join(", "); 
+      
+      
+    return formattedOrganizationNames || null;
   } catch (error) {
     console.error("Error fetching organization addresses:", error);
     return null;

@@ -37,14 +37,12 @@ export const AddressForm = (props: Props) => {
     defaultValues: initialize(props.init),
   });
 
-
   const [isClearable, setIsClearable] = useState(true);
   const [isSearchable, setIsSearchable] = useState(true);
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRtl, setIsRtl] = useState(false);
   const [organizations, setOrganizations] = useState<{ name: any }[]>([]);
-
 
   const organizationId = async (organizationName: string) => {
     const supabase = createClientComponentClient();
@@ -78,7 +76,9 @@ export const AddressForm = (props: Props) => {
 
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
-    const organizationIdValue = await organizationId((draft.organization as any)?.value);
+    const organizationIdValue = await organizationId(
+      (draft.organization as any)?.value
+    );
 
     if (!props.init) {
       const res = await supabase
@@ -86,18 +86,17 @@ export const AddressForm = (props: Props) => {
         .insert([{ street: draft.street, unit: draft.unit, zip: draft.zip }])
         .select();
 
-        const resAddress = res.data?.[0]?.id
+      const resAddress = res.data?.[0]?.id;
 
-
-        const resUserOrganization = await supabase
-          .from("organization_address")
-          .insert([
-            {
-              organization_id: organizationIdValue, // Usa la variable organizationId
-              address_id: resAddress,
-            },
-          ])
-          .select();
+      const resUserOrganization = await supabase
+        .from("organization_address")
+        .insert([
+          {
+            organization_id: organizationIdValue, // Usa la variable organizationId
+            address_id: resAddress,
+          },
+        ])
+        .select();
 
       if (res.error || resUserOrganization.error) {
         return toast({
@@ -109,27 +108,12 @@ export const AddressForm = (props: Props) => {
 
       props.onSubmit?.(res.data[0]);
       toast({ title: "Successful" });
-   
     }
   });
-  
+
   useEffect(() => {
     getOrganizations();
   }, []);
-  // const onRemove = async () => {
-  //   const supabase = createClientComponentClient();
-
-  //   const res = await supabase
-  //     .from("organization_address")
-  //     .delete()
-  //     .eq("address_id", Number(props.init.id))
-  //     .select();
-
-  //   props.onSubmit?.(res.data?.[0]);
-  //   toast({ title: "Successful" });
-  // };
-
-  
 
   return (
     <Form {...form}>
@@ -161,44 +145,6 @@ export const AddressForm = (props: Props) => {
           })}
         />
 
-
-        
-<FormField
-          control={form.control}
-          name="organization"
-          render={({ field }) => (
-            <div className="flex flex-col gap-1 py-2">
-              <label className="text-sm font-medium text-gray-900">
-                Organization
-              </label>
-              <Select
-                {...field}
-                className="basic-single"
-                classNamePrefix="select"
-                defaultValue={organizations.length > 0 ? organizations[0].name : ""}
-                isDisabled={isDisabled}
-                isLoading={isLoading}
-                isClearable={isClearable}
-                isRtl={isRtl}
-                isSearchable={isSearchable}
-                name="organization"
-                options={organizations.map((org) => ({
-                  label: org.name,
-                  value: org.name,
-                }))}
-                theme={(theme) => ({
-                  ...theme,
-                  borderRadius: 5,
-                  colors: {
-                    ...theme.colors,
-                    primary25: 'silver',
-                    primary: 'silver',
-                  },
-                })}
-              />
-            </div>
-          )}
-        />
 
         <div className="flex gap-2 items-center mt-6">
           <Button className="flex-1" type="submit">

@@ -19,6 +19,7 @@ export const OrganizationUserTable = () => {
     type: "",
     data: null,
   });
+  
 
   const onUserRemove = async (id: number) => {
     const supabase = createClientComponentClient();
@@ -26,12 +27,16 @@ export const OrganizationUserTable = () => {
       .from("account_organization")
       .delete()
       .eq("account_id", Number(id))
-      .eq("organization_id", Number(query.state.data.id));
+      .eq("organization_id", Number(query.state.data.id)).then(() => {
+        setTimeout(() => {
+          mutate(`account_organization_eq_${query.state.data.id}`);
+        }, 500);
+      }
 
-    mutate("account_organization");
+      );
   };
 
-  //muestra todos los user de la organizacion
+  // muestra todos los user de la organizacion
   const {
     data: data1,
     error,
@@ -50,7 +55,8 @@ export const OrganizationUserTable = () => {
   );
 
 
-  //muestra todos los user disponibles
+
+  //muestra todos los user disponibles para agregar a la organizacion
   const {
     data: responseUserAdd,
     error: error2,
@@ -102,6 +108,9 @@ export const OrganizationUserTable = () => {
       email: item.email,
     }));
 
+ 
+
+
   if (form.type === "EDIT") {
     return (
       <UserForm
@@ -131,7 +140,7 @@ export const OrganizationUserTable = () => {
                 ])
                 .then(() => {
                   setTimeout(() => {
-                    mutate("account_organization");
+                    mutate(`account_organization_eq_${query.state.data.id}`);
                     setForm({ type: "", data: null });
                   }, 500);
                 });
