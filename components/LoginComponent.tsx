@@ -37,6 +37,7 @@ const LoginComponent = () => {
             password: formData.password,
           }
         );
+        
         const { data: addUser, error: errorAddUser } = await supabase
           .from("account")
           .insert([
@@ -57,6 +58,10 @@ const LoginComponent = () => {
           email: formData.email,
           password: formData.password,
         });
+
+        if (data) {
+          localStorage.clear();
+        }
         console.log("signin", data);
       }
     } catch (error) {
@@ -64,7 +69,7 @@ const LoginComponent = () => {
     }
   };
 
-
+  
   
 
   if (isForgotPassword) {

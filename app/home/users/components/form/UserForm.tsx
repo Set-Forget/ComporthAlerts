@@ -52,41 +52,8 @@ export const UserForm = (props: Props) => {
     value: string;
   }
 
-  const organizationId = async (organizationName: string) => {
-    const supabase = createClientComponentClient();
-
-    const res = await supabase
-      .from("organization")
-      .select("id")
-      .eq("name", organizationName)
-      .single();
-    if (res.error) {
-      return toast({
-        variant: "destructive",
-        title: res.error?.code,
-        description: res.error?.message,
-      });
-    }
-    return res.data.id; // Devuelve un objeto con la propiedad 'id'
-  };
-
-  const getOrganizations = async () => {
-    const supabase = createClientComponentClient();
-    const res = await supabase
-      .from("organization")
-      .select("name")
-      .eq("deleted", false);
-    if (res.error) {
-      return [];
-    }
-    setOrganizations(res.data.map((org) => ({ name: org.name })));
-  };
-
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
-    const organizationIdValue = await organizationId((draft.organization as any)?.value);
-
-    
 
     if (!props.init) {
       const resUser = await supabase
@@ -101,38 +68,19 @@ export const UserForm = (props: Props) => {
         ])
         .select();
 
-      const accountId = resUser.data?.[0]?.id;
-        
+      if (!resUser) {
+        console.log("errors:", resUser);
 
-        const resUserOrganization = await supabase
-          .from("account_organization")
-          .insert([
-            {
-              account_id: accountId,
-              organization_id: organizationIdValue, // Usa la variable organizationId
-            },
-          ])
-          .select();
-
-        console.log(resUserOrganization);
-
-        if (resUser.error || resUserOrganization.error) {
-          return toast({
-            title: resUser.error?.code || resUserOrganization.error?.code,
-            variant: "destructive",
-            description: resUserOrganization.error?.message,
-          });
-        }
-
-        props.onSubmit?.(resUser.data[0]);
+        return toast({
+          title: resUser,
+          variant: "destructive",
+          description: resUser,
+        });
+      } else {
         toast({ title: "Successful" });
       }
     }
-  );
-
-  useEffect(() => {
-    getOrganizations();
-  }, []);
+  });
 
   return (
     <Form {...form}>
@@ -188,7 +136,6 @@ export const UserForm = (props: Props) => {
           })}
         />
 
-        
         <div className="flex gap-2 items-center mt-6">
           <Button className="flex-1" type="submit">
             Submit
