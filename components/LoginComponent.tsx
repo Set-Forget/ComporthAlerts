@@ -136,7 +136,7 @@ const LoginComponent = () => {
 
       <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-[480px]">
         <div className="bg-white p-4 shadow sm:rounded-lg sm:px-12">
-          <form className="space-y-2" action="#" method="POST">
+          <form className="space-y-2" onSubmit={handleAuth}>
             <div>
               <label
                 htmlFor="email"
@@ -241,18 +241,17 @@ const LoginComponent = () => {
                 </div>
 
                 <div className="text-sm leading-6">
-                  <button
+                  <a
                     onClick={toggleForgotPassword}
                     className="font-semibold text-indigo-600 hover:text-indigo-500"
                   >
                     Forgot password?
-                  </button>
+                  </a>
                 </div>
               </div>
             )}
             <div>
               <button
-                onClick={handleAuth}
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
