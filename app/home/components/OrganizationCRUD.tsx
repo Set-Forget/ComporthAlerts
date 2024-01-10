@@ -12,15 +12,54 @@ import { OrganizationForm } from "./form";
 import { Button } from "@/components/ui/button";
 import useSWR, { mutate } from "swr";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OrganizationAddressTable, OrganizationUserTable } from "./table";
 import { PlusCircleIcon } from "lucide-react";
+import { fetchAccountEmail } from "../incidents/utils/dbUtils";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export const OrganizationCRUD = () => {
   const query = useOrganizationQuery();
   const [currentTab, setTab] = useState<"edit" | "accounts" | "addresses">(
     "edit"
   );
+  const [userRole, setUserRole] = useState(null); 
+  const supabase = createClientComponentClient();
+
+
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const email = await fetchAccountEmail();
+
+      if (!email) {
+        console.error("No email found.");
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("account")
+          .select("*")
+          .eq("email", email)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setUserRole(data.role);
+        } else {
+          setUserRole(null);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const onSubmit = () => {
     setTimeout(() => {
@@ -28,6 +67,9 @@ export const OrganizationCRUD = () => {
       query.onSet((s) => ({ data: null, type: "" }));
     }, 500);
   };
+
+  const showCreateButton = userRole !== 'client' && userRole !== 'user' && userRole !== 'client_admin' ;
+
 
   return (
     <Sheet
@@ -37,16 +79,18 @@ export const OrganizationCRUD = () => {
         query.onSet((_) => ({ data: null, type: "" }));
       }}
     >
-      <SheetTrigger asChild className="flex justify-between gap-1">
-        <Button 
-          onClick={() => {
-            query.onSet(() => ({ type: "CREATE" }));
-          }}
-        >
-           <p className="">Create</p> 
-          <PlusCircleIcon />
-        </Button>
-      </SheetTrigger>
+      {showCreateButton && (
+        <SheetTrigger asChild className="flex justify-between gap-1">
+          <Button 
+            onClick={() => {
+              query.onSet(() => ({ type: "CREATE" }));
+            }}
+          >
+            <p className="">Create</p> 
+            <PlusCircleIcon />
+          </Button>
+        </SheetTrigger>
+      )}
       <SheetClose />
       <SheetContent className="min-w-[700px]">
         <SheetHeader>

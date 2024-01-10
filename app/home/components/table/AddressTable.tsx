@@ -1,29 +1,110 @@
-"use client";
-
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import useSWR from "swr";
 import { DataTable } from "@/components/DataTable";
 import { useAddressQuery } from "../use-address-query";
 import { EyeIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchAccountEmail } from "../../incidents/utils/dbUtils";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export const AddressTable = () => {
-  const orgSWR = useSWR("address", (key: string) => {
-    const supabase = createClientComponentClient();
-    //no mostrar los que tengan  el campo delted en true
-    return supabase.from(key).select("*").eq("deleted", false);
-  });
+  const [userData, setUserData] = useState(null);
+  const [orgData, setOrgData] = useState([]);
+  const [address, setAddress] = useState([]);
+  const [addressToShow, setAddressToShow] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClientComponentClient();
   const query = useAddressQuery();
+  const [userRole, setUserRole] = useState(null);
+  const showEyebutton = userRole !== "client" && userRole !== "user";
+  console.log(showEyebutton);
 
-  if (orgSWR.isLoading) return <>...LOADING</>;
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const email = await fetchAccountEmail();
 
-  return (
+      if (!email) {
+        console.error("No email found.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("account")
+          .select("*")
+          .eq("email", email)
+          .single();
+
+        if (error) throw error;
+
+        setUserData(data);
+        setUserRole(data.role);
+        if (["client", "client_admin", "user"].includes(data.role)) {
+          const { data: orgData, error: orgError } = await supabase
+            .from("account_organization")
+            .select("organization_id")
+            .eq("account_id", data.id);
+
+          if (orgError) throw orgError;
+
+          const orgIds = orgData.map((org) => org.organization_id);
+          setOrgData(orgIds);
+          if (orgIds.length > 0) {
+            const { data: addrData, error: addrError } = await supabase
+              .from("organization_address")
+              .select("address_id")
+              .in("organization_id", orgIds);
+
+            if (addrError) throw addrError;
+
+            setAddress(addrData);
+
+            if (addrData.length > 0) {
+              const addIds = addrData.map((acc) => acc.address_id);
+              const { data: addToShow, error: addError } = await supabase
+                .from("address")
+                .select("*")
+                .in("id", addIds);
+
+              if (addError) throw addError;
+              console.log(addToShow);
+              setAddressToShow(addToShow);
+            }
+          }
+        } else {
+          const { data: addToShow, error: addError } = await supabase
+            .from("address")
+            .select("*");
+
+          if (addError) throw addError;
+          console.log(addToShow);
+
+          setAddressToShow(addToShow);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return isLoading ? (
+    <LoadingSpinner />
+  ) : (
     <DataTable
-      rowIcon={(data) => (
+    rowIcon={(data) => {
+      return showEyebutton ? (
         <EyeIcon
           className="cursor-pointer"
           onClick={() => query.onSet((s) => ({ type: "READ", data }))}
         />
-      )}
+      ) : null;
+    }}
       headers={[
         {
           accessorKey: "street",
@@ -39,7 +120,7 @@ export const AddressTable = () => {
         },
       ]}
       //@ts-ignore
-      data={orgSWR.data?.data || []}
+      data={addressToShow}
     />
   );
 };

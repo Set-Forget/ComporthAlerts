@@ -5,25 +5,93 @@ import useSWR from "swr";
 import { DataTable } from "@/components/DataTable";
 import { useOrganizationQuery } from "../use-organization-query";
 import { EyeIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchAccountEmail } from "../../incidents/utils/dbUtils";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export const OrganizationTable = () => {
-  const orgSWR = useSWR("organization", (key: string) => {
-    const supabase = createClientComponentClient();
-    //no mostrar los que tengan  el campo delted en true
-    return supabase.from(key).select("*").eq("deleted", false);
-  });
+  const [userData, setUserData] = useState(null);
+  const [orgData, setOrgData] = useState([]);
+  const [orgToShow, setOrgToShow] = useState([])
+  const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClientComponentClient();
   const query = useOrganizationQuery();
+  const [userRole, setUserRole] = useState(null);
+  const showEyebutton = userRole !== "client" && userRole !== "user";
 
-  if (orgSWR.isLoading) return <>...LOADING</>;
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const email = await fetchAccountEmail();
 
-  return (
+      if (!email) {
+        console.error("No email found.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("account")
+          .select("*")
+          .eq("email", email)
+          .single();
+
+        if (error) throw error;
+
+        setUserData(data);
+        setUserRole(data.role);
+        if (["client", "client_admin", "user"].includes(data.role)) {
+          const { data: orgData, error: orgError } = await supabase
+            .from("account_organization")
+            .select("organization_id")
+            .eq("account_id", data.id);
+
+          if (orgError) throw orgError;
+
+          const orgIds = orgData.map((org) => org.organization_id);
+          setOrgData(orgIds);
+          if (orgIds.length > 0) {
+            const { data: orgData, error: orgError } = await supabase
+              .from("organization")
+              .select("*")
+              .in("id", orgIds);
+
+            if (orgError) throw orgError;
+            setOrgToShow(orgData);
+
+            }
+          } else {
+            const { data: orgData, error: orgError } = await supabase
+              .from("organization")
+              .select("*")
+
+            if (orgError) throw orgError;
+            setOrgToShow(orgData);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+  return isLoading ? (
+    <LoadingSpinner />
+  ) : (
     <DataTable
-      rowIcon={(data) => (
+    rowIcon={(data) => {
+      return showEyebutton ? (
         <EyeIcon
           className="cursor-pointer"
           onClick={() => query.onSet((s) => ({ type: "READ", data }))}
         />
-      )}
+      ) : null;
+    }}
       headers={[
         {
           accessorKey: "name",
@@ -39,7 +107,7 @@ export const OrganizationTable = () => {
         },
       ]}
       //@ts-ignore
-      data={orgSWR.data?.data || []}
+      data={orgToShow}
     />
   );
 };

@@ -2,12 +2,14 @@
 import React from "react";
 import { DataTable } from "@/components/DataTable";
 import { useIncidentsFetcher } from "./components/incidentFetch";
+import LoadingSpinner from "@/components/LoadingSpinner";
+
 
 const IncidentsPage: React.FC = () => {
   const { incidents, loading } = useIncidentsFetcher();
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <LoadingSpinner/>;
   }
 
   if (!incidents || incidents.length === 0) {

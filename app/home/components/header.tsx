@@ -45,6 +45,9 @@ export const Header = () => {
     return supa.auth.getSession();
   });
   if (session.isLoading) return <></>;
+
+  const defaultAvatarUrl = "https://cdn-icons-png.flaticon.com/512/266/266033.png";
+
   return (
     <header className="flex justify-between w-auto">
       <img
@@ -56,7 +59,7 @@ export const Header = () => {
           <DropdownMenuTrigger asChild>
             <Avatar className="cursor-pointer">
               <AvatarImage
-                src={session.data?.data.session?.user?.user_metadata.avatar_url}
+                src={session.data?.data.session?.user?.user_metadata.avatar_url || defaultAvatarUrl}
                 alt="@shadcn"
               />
             </Avatar>

@@ -21,7 +21,6 @@ const initialize = (init?: any) => {
     unit: init?.unit || "",
     zip: init?.zip || "",
     deleted: !!init?.deleted,
-    organization: init?.organization_id || null, // Usar el valor seleccionado
   };
 };
 
@@ -32,7 +31,6 @@ export const AddressForm = (props: Props) => {
     unit: string;
     zip: string;
     deleted: boolean;
-    organization: string;
   }>({
     defaultValues: initialize(props.init),
   });
@@ -62,23 +60,10 @@ export const AddressForm = (props: Props) => {
     return res.data.id; // Devuelve un objeto con la propiedad 'id'
   };
 
-  const getOrganizations = async () => {
-    const supabase = createClientComponentClient();
-    const res = await supabase
-      .from("organization")
-      .select("name")
-      .eq("deleted", false);
-    if (res.error) {
-      return [];
-    }
-    setOrganizations(res.data.map((org) => ({ name: org.name })));
-  };
+
 
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
-    const organizationIdValue = await organizationId(
-      (draft.organization as any)?.value
-    );
 
     if (!props.init) {
       const res = await supabase
@@ -92,7 +77,6 @@ export const AddressForm = (props: Props) => {
         .from("organization_address")
         .insert([
           {
-            organization_id: organizationIdValue, // Usa la variable organizationId
             address_id: resAddress,
           },
         ])
@@ -111,9 +95,7 @@ export const AddressForm = (props: Props) => {
     }
   });
 
-  useEffect(() => {
-    getOrganizations();
-  }, []);
+
 
   return (
     <Form {...form}>

@@ -8,6 +8,8 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
+import useSWR, { mutate } from 'swr';
+
 
 
 interface Props {
@@ -20,7 +22,7 @@ const initialize = (init?: any) => {
     full_name: init?.full_name || "",
     email: init?.email || "",
     phone: init?.phone || "",
-    role: init?.role || "",
+    role: init?.role || "pending",
     organization: init?.organization_id || null, // Usar el valor seleccionado
   };
 };
@@ -105,6 +107,7 @@ export const UserForm = (props: Props) => {
           description: resUser,
         });
       } else {
+        mutate('account');
         toast({ title: "Successful" });
       }
     }

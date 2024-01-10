@@ -19,11 +19,13 @@ export const OrganizationAddressTable = () => {
     data: null,
   });
 
+
+
   const orgId = Number(query.state.data.id);
 
   //muestra todos los address de la organizacion
   const { data: addressesAccount, isLoading } = useSWR<any>(
-    !!query.state.data.id ? `organization_address${query.state.data.id}` : null,
+    !!query.state.data.id ? `organization_address_eq_${query.state.data.id}` : null,
     (key: string) => {
       const supabase = createClientComponentClient();
       return supabase
@@ -97,16 +99,31 @@ export const OrganizationAddressTable = () => {
       />
     );
   }
+  // const onAddressRemove = async (id: number) => {
+  //   const supabase = createClientComponentClient();
+  //   await supabase
+  //     .from("organization_address")
+  //     .delete()
+  //     .eq("organization_id", orgId)
+  //     .eq("address_id", id);
+
+  //   mutate(`organization_address_eq_${orgId}`);
+    
+  // };
+
   const onAddressRemove = async (id: number) => {
     const supabase = createClientComponentClient();
     await supabase
       .from("organization_address")
       .delete()
-      .eq("organization_id", orgId)
-      .eq("address_id", id);
+      .eq("address_id", id)
+      .eq("organization_id", orgId).then(() => {
+          mutate(`organization_address_eq_${orgId}`);
+      }
 
-    mutate("organization_address");
+      );
   };
+
 
   if (form.type === "CREATE") {
     return (
@@ -123,7 +140,7 @@ export const OrganizationAddressTable = () => {
                 ])
                 .then(() => {
                   setTimeout(() => {
-                    mutate("organization_address");
+                    mutate(`organization_address_eq_${query.state.data.id}`);
                     setForm({ type: "", data: null });
                   }, 500);
                 });
