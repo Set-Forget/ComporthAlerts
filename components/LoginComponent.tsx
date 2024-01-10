@@ -28,7 +28,7 @@ const LoginComponent = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const getUserRole = async (userEmail) => {
+  const getUserRole = async (userEmail : string) => {
     let { data, error } = await supabase
       .from("account")
       .select("role")
@@ -117,7 +117,8 @@ const LoginComponent = () => {
             description: error.message,
           });
         } else if (data) {
-          const userDetails = await getUserRole(data.user.email);
+          if (data && data.user && data.user.email) {
+            const userDetails = await getUserRole(data.user.email);
 
           if (!userDetails || userDetails.role === "pending") {
             toast({
@@ -135,6 +136,7 @@ const LoginComponent = () => {
             useRouter().push("/home");
           }
         }
+        } 
       }
     } catch (error) {}
   };
