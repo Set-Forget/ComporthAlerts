@@ -8,9 +8,9 @@ import { useUserQuery } from "../use-user-query";
 
 export const UserTable = () => {
   const [userData, setUserData] = useState(null);
-  const [orgData, setOrgData] = useState([]);
-  const [accountData, setAccountData] = useState([]);
-  const [accountToShow, setAccountToShow] = useState([]);
+  const [orgData, setOrgData] = useState<Array<number|string>>([]);
+  const [accountData, setAccountData] = useState<Array<number|string>>([]);
+  const [accountToShow, setAccountToShow] = useState<Array<number|string>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClientComponentClient();
   const query = useUserQuery();
@@ -56,11 +56,11 @@ export const UserTable = () => {
               .in("organization_id", orgIds);
 
             if (accError) throw accError;
-
-            setAccountData(accData);
+            
 
             if (accData.length > 0) {
-              const accIds = accData.map((acc) => acc.account_id);
+              const accIds = accData.map((acc) => acc.account_id); 
+              setAccountData(accIds);
               const { data: accToShow, error: accError } = await supabase
                 .from("account")
                 .select("*")
@@ -97,14 +97,18 @@ export const UserTable = () => {
 
   return (
     <DataTable
-    rowIcon={(data) => {
-      return showEyebutton ? (
-        <EyeIcon
-          className="cursor-pointer"
-          onClick={() => query.onSet((s) => ({ type: "READ", data }))}
-        />
-      ) : null;
-    }}
+      rowIcon={(data) => {
+        if (showEyebutton) {
+          return (
+            <EyeIcon
+              className="cursor-pointer"
+              onClick={() => query.onSet((s) => ({ type: "READ", data }))}
+            />
+          );
+        } else {
+          return <></>; 
+        }
+      }}
       headers={[
         { accessorKey: "full_name", header: "Name" },
         { accessorKey: "email", header: "Email" },

@@ -9,9 +9,11 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export const AddressTable = () => {
   const [userData, setUserData] = useState(null);
-  const [orgData, setOrgData] = useState([]);
-  const [address, setAddress] = useState([]);
-  const [addressToShow, setAddressToShow] = useState([]);
+  const [orgData, setOrgData] = useState<Array<number | string>>([]);
+  const [address, setAddress] = useState<Array<number | string>>([]);
+  const [addressToShow, setAddressToShow] = useState<Array<number | string>>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClientComponentClient();
   const query = useAddressQuery();
@@ -59,10 +61,10 @@ export const AddressTable = () => {
 
             if (addrError) throw addrError;
 
-            setAddress(addrData);
-
             if (addrData.length > 0) {
               const addIds = addrData.map((acc) => acc.address_id);
+              setAddress(addIds);
+
               const { data: addToShow, error: addError } = await supabase
                 .from("address")
                 .select("*")
@@ -97,14 +99,18 @@ export const AddressTable = () => {
     <LoadingSpinner />
   ) : (
     <DataTable
-    rowIcon={(data) => {
-      return showEyebutton ? (
-        <EyeIcon
-          className="cursor-pointer"
-          onClick={() => query.onSet((s) => ({ type: "READ", data }))}
-        />
-      ) : null;
-    }}
+      rowIcon={(data) => {
+        if (showEyebutton) {
+          return (
+            <EyeIcon
+              className="cursor-pointer"
+              onClick={() => query.onSet((s) => ({ type: "READ", data }))}
+            />
+          );
+        } else {
+          return <></>;
+        }
+      }}
       headers={[
         {
           accessorKey: "street",

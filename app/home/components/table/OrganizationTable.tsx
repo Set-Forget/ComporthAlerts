@@ -11,8 +11,8 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export const OrganizationTable = () => {
   const [userData, setUserData] = useState(null);
-  const [orgData, setOrgData] = useState([]);
-  const [orgToShow, setOrgToShow] = useState([])
+  const [orgData, setOrgData] = useState<Array<number|string>>([]);
+  const [orgToShow, setOrgToShow] = useState<Array<number|string>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClientComponentClient();
   const query = useOrganizationQuery();
@@ -84,14 +84,18 @@ export const OrganizationTable = () => {
     <LoadingSpinner />
   ) : (
     <DataTable
-    rowIcon={(data) => {
-      return showEyebutton ? (
-        <EyeIcon
-          className="cursor-pointer"
-          onClick={() => query.onSet((s) => ({ type: "READ", data }))}
-        />
-      ) : null;
-    }}
+      rowIcon={(data) => {
+        if (showEyebutton) {
+          return (
+            <EyeIcon
+              className="cursor-pointer"
+              onClick={() => query.onSet((s) => ({ type: "READ", data }))}
+            />
+          );
+        } else {
+          return <></>; 
+        }
+      }}
       headers={[
         {
           accessorKey: "name",
