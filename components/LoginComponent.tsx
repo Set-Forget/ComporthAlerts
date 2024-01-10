@@ -28,7 +28,7 @@ const LoginComponent = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const getUserRole = async (userEmail : string) => {
+  const getUserRole = async (userEmail: string) => {
     let { data, error } = await supabase
       .from("account")
       .select("role")
@@ -117,16 +117,17 @@ const LoginComponent = () => {
             description: error.message,
           });
         } else if (data) {
-          if (data && data.user && data.user.email) {
+          if (data.user.email) {
             const userDetails = await getUserRole(data.user.email);
 
-          if (!userDetails || userDetails.role === "pending") {
-            toast({
-              title: userDetails ? "Login Pending" : "Error",
-              description: userDetails
-                ? "Your account is pending approval."
-                : "Unable to fetch user details.",
-            });
+            if (!userDetails || userDetails.role === "pending") {
+              toast({
+                title: userDetails ? "Login Pending" : "Error",
+                description: userDetails
+                  ? "Your account is pending approval."
+                  : "Unable to fetch user details.",
+              });
+            }
           } else {
             toast({
               title: "Login Successful",
@@ -136,7 +137,6 @@ const LoginComponent = () => {
             useRouter().push("/home");
           }
         }
-        } 
       }
     } catch (error) {}
   };
