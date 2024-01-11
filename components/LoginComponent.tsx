@@ -96,9 +96,10 @@ const LoginComponent = () => {
         });
         isSignUp && !errorsignUp && !errorAddUser && toggleSignUp();
       } else if (isForgotPassword) {
-        const { data } = await supabase.auth.resetPasswordForEmail(
-          formData.email
-        );
+        console.log(formData.email);
+        await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: "https://comporth-alerts.vercel.app/resetPassword",
+        });
         toast({
           title: "Password Reset Request Sent",
           description: "Check your email to reset your password.",
@@ -152,7 +153,7 @@ const LoginComponent = () => {
 
         <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white p-4 shadow sm:rounded-lg sm:px-12">
-            <form className="space-y-2" action="#" method="POST">
+            <form className="space-y-2" action="#" method="POST" onSubmit={handleAuth}>
               <div>
                 <label
                   htmlFor="email"
@@ -189,7 +190,7 @@ const LoginComponent = () => {
                 <button
                   type="submit"
                   className="flex w-full justify-center  rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
+                 >
                   Reset Password
                 </button>
               </div>
@@ -244,6 +245,7 @@ const LoginComponent = () => {
                   id="password"
                   name="password"
                   type="password"
+                  minLength={7}
                   autoComplete="current-password"
                   required
                   value={formData.password}
