@@ -7,13 +7,21 @@ import { useEffect, useState } from "react";
 import { fetchAccountEmail } from "../../incidents/utils/dbUtils";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
+interface Address {
+  id: number;
+  created_at: Date;
+  street: string;
+  zip: string;
+  unit: string;
+  deleted: boolean;
+  external_id: string;
+}
+
 export const AddressTable = () => {
   const [userData, setUserData] = useState(null);
   const [orgData, setOrgData] = useState<Array<number | string>>([]);
   const [address, setAddress] = useState<Array<number | string>>([]);
-  const [addressToShow, setAddressToShow] = useState<Array<number | string>>(
-    []
-  );
+  const [addressToShow, setAddressToShow] = useState<Array<Address>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClientComponentClient();
   const query = useAddressQuery();
@@ -90,6 +98,40 @@ export const AddressTable = () => {
       } finally {
         setIsLoading(false);
       }
+
+      const channels = supabase
+        .channel("custom-all-channel")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "address" },
+          (payload) => {
+            console.log("Change received!", payload);
+            if (
+              payload.eventType === "INSERT" ||
+              payload.eventType === "UPDATE"
+            ) {
+              setAddressToShow((prevAccounts) => {
+                const updatedAccounts = [...prevAccounts];
+                const index = updatedAccounts.findIndex(
+                  (acc) => acc.id === payload.new.id
+                );
+
+                if (index !== -1) {
+                  updatedAccounts[index] = payload.new as Address;
+                } else {
+                  updatedAccounts.push(payload.new as Address);
+                }
+
+                return updatedAccounts;
+              });
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channels);
+      };
     };
 
     fetchData();

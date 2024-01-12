@@ -18,6 +18,8 @@ export const fetchAccountEmail = async () => {
   }
 };
 
+
+
 export const fetchAccountRole = async () => {
   try {
     const email = await fetchAccountEmail();

@@ -8,9 +8,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
-import useSWR, { mutate } from 'swr';
-
-
+import useSWR, { mutate } from "swr";
 
 interface Props {
   init?: any;
@@ -23,7 +21,9 @@ const initialize = (init?: any) => {
     email: init?.email || "",
     phone: init?.phone || "",
     role: init?.role || "pending",
-    organization: init?.organization_id || null, // Usar el valor seleccionado
+    organization: init?.organization_id || null,
+    send_email: init?.send_email ? "TRUE" : "FALSE",
+    send_sms: init?.send_sms ? "TRUE" : "FALSE",
   };
 };
 
@@ -35,6 +35,8 @@ export const UserForm = (props: Props) => {
     phone: string;
     role: string;
     organization: string;
+    send_email: string;
+    send_sms: string;
   }>({
     defaultValues: initialize(props.init),
   });
@@ -60,7 +62,8 @@ export const UserForm = (props: Props) => {
     const fetchUserRole = async () => {
       const supabaseClient = createClientComponentClient();
       try {
-        const userEmail = (await supabaseClient.auth.getSession()).data.session?.user.email;
+        const userEmail = (await supabaseClient.auth.getSession()).data.session
+          ?.user.email;
         if (userEmail) {
           const { data, error } = await supabaseClient
             .from("account")
@@ -78,13 +81,11 @@ export const UserForm = (props: Props) => {
 
     fetchUserRole();
   }, []);
- 
 
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
-
-
-
+    const sendEmailBoolean = draft.send_email === "TRUE";
+    const sendSmsBoolean = draft.send_sms === "TRUE";
     if (!props.init) {
       const resUser = await supabase
         .from("account")
@@ -94,6 +95,8 @@ export const UserForm = (props: Props) => {
             email: draft.email,
             phone: draft.phone,
             role: draft.role,
+            send_email: sendEmailBoolean,
+            send_sms: sendSmsBoolean,
           },
         ])
         .select();
@@ -107,11 +110,39 @@ export const UserForm = (props: Props) => {
           description: resUser,
         });
       } else {
-        mutate('account');
+        mutate("account");
         toast({ title: "Successful" });
-      }
+            }
+    } else if (props.init) {
+      const { data, error } = await supabase
+        .from("account")
+        .update({
+          full_name: draft.full_name,
+          email: draft.email,
+          phone: draft.phone,
+          role: draft.role,
+          send_email: sendEmailBoolean,
+          send_sms: sendSmsBoolean,
+        })
+        .eq("id", props.init.id);
+
+      if (error) {
+        console.log("errors:", error);
+
+        return toast({
+          title: "Error",
+          variant: "destructive",
+          description:
+            "There was an error editing the user, please try again. If the problem persists, please contact support.",
+        });
+      } else {
+        mutate("account");
+        toast({ title: "Successful" });
+            }
     }
   });
+
+
 
   return (
     <Form {...form}>
@@ -144,35 +175,65 @@ export const UserForm = (props: Props) => {
         />
 
         {role === "admin" && (
+          <FormField
+            control={form.control}
+            name="role"
+            render={RHFSlot({
+              label: "Role",
+              rhf: "Select",
+              props: {
+                options: [
+                  {
+                    label: "Client Admin",
+                    value: "client_admin",
+                  },
+                  {
+                    label: "Client",
+                    value: "client",
+                  },
+                  {
+                    label: "Customer",
+                    value: "customer",
+                  },
+                  {
+                    label: "Pending",
+                    value: "pending",
+                  },
+                ],
+              },
+            })}
+          />
+        )}
+
         <FormField
           control={form.control}
-          name="role"
+          name="send_email"
           render={RHFSlot({
-            label: "Role",
+            label: "Send Email",
             rhf: "Select",
             props: {
               options: [
-                {
-                  label: "Client Admin",
-                  value: "client_admin",
-                },
-                {
-                  label: "Client",
-                  value: "client",
-                },
-                {
-                  label: "Customer",
-                  value: "customer",
-                },
-                {
-                  label: "Pending",
-                  value: "pending",
-                }
+                { label: "True", value: "TRUE" },
+                { label: "False", value: "FALSE" },
               ],
             },
           })}
         />
-        )}
+
+        <FormField
+          control={form.control}
+          name="send_sms"
+          render={RHFSlot({
+            label: "Send SMS",
+            rhf: "Select",
+            props: {
+              options: [
+                { label: "True", value: "TRUE" },
+                { label: "False", value: "FALSE" },
+              ],
+            },
+          })}
+        />
 
         <div className="flex gap-2 items-center mt-6">
           <Button className="flex-1" type="submit">

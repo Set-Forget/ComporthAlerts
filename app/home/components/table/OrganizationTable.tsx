@@ -9,10 +9,19 @@ import { useEffect, useState } from "react";
 import { fetchAccountEmail } from "../../incidents/utils/dbUtils";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
+interface Organization {
+  id: number;
+  created_at: Date;
+  name: string;
+  phone: string;
+  email: string;
+  deleted: boolean;
+}
+
 export const OrganizationTable = () => {
   const [userData, setUserData] = useState(null);
   const [orgData, setOrgData] = useState<Array<number|string>>([]);
-  const [orgToShow, setOrgToShow] = useState<Array<number|string>>([]);
+  const [orgToShow, setOrgToShow] = useState<Array<Organization>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClientComponentClient();
   const query = useOrganizationQuery();
@@ -74,11 +83,44 @@ export const OrganizationTable = () => {
       } finally {
         setIsLoading(false);
       }
+
+      const channels = supabase
+        .channel("custom-all-channel")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "organization" },
+          (payload) => {
+            console.log("Change received!", payload);
+            if (
+              payload.eventType === "INSERT" ||
+              payload.eventType === "UPDATE"
+            ) {
+              setOrgToShow((prevAccounts) => {
+                const updatedAccounts = [...prevAccounts];
+                const index = updatedAccounts.findIndex(
+                  (acc) => acc.id === payload.new.id
+                );
+
+                if (index !== -1) {
+                  updatedAccounts[index] = payload.new as Organization;
+                } else {
+                  updatedAccounts.push(payload.new as Organization);
+                }
+
+                return updatedAccounts;
+              });
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channels);
+      };
     };
 
     fetchData();
   }, []);
-
 
   return isLoading ? (
     <LoadingSpinner />

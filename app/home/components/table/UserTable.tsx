@@ -1,23 +1,35 @@
 import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import {createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { DataTable } from "@/components/DataTable";
 import { EyeIcon } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { fetchAccountEmail } from "../../incidents/utils/dbUtils";
 import { useUserQuery } from "../use-user-query";
+interface Account {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  role: string;
+  email_send : boolean;
+  sms_send : boolean;
+}
+
 
 export const UserTable = () => {
   const [userData, setUserData] = useState(null);
-  const [orgData, setOrgData] = useState<Array<number|string>>([]);
-  const [accountData, setAccountData] = useState<Array<number|string>>([]);
-  const [accountToShow, setAccountToShow] = useState<Array<number|string>>([]);
+  const [orgData, setOrgData] = useState<Array<number | string>>([]);
+  const [accountData, setAccountData] = useState<Array<number | string>>([]);
+  const [accountToShow, setAccountToShow] = useState<Array<Account>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClientComponentClient();
   const query = useUserQuery();
   const [userRole, setUserRole] = useState(null);
   const showEyebutton = userRole !== "client" && userRole !== "user";
 
+
   useEffect(() => {
+    console.log("Account charged");
     const fetchData = async () => {
       setIsLoading(true);
       const email = await fetchAccountEmail();
@@ -56,10 +68,9 @@ export const UserTable = () => {
               .in("organization_id", orgIds);
 
             if (accError) throw accError;
-            
 
             if (accData.length > 0) {
-              const accIds = accData.map((acc) => acc.account_id); 
+              const accIds = accData.map((acc) => acc.account_id);
               setAccountData(accIds);
               const { data: accToShow, error: accError } = await supabase
                 .from("account")
@@ -86,6 +97,36 @@ export const UserTable = () => {
       } finally {
         setIsLoading(false);
       }
+
+      const channels = supabase.channel('custom-all-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'account' },
+        (payload) => {
+          console.log('Change received!', payload)
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            setAccountToShow(prevAccounts => {
+              const updatedAccounts = [...prevAccounts];
+              const index = updatedAccounts.findIndex(acc => acc.id === payload.new.id);
+      
+              if (index !== -1) {
+                updatedAccounts[index] = payload.new as Account;
+              } else {
+                updatedAccounts.push(payload.new as Account);
+              }
+      
+              return updatedAccounts;
+            });
+          }
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(channels);
+    };
+
+      
     };
 
     fetchData();
@@ -106,7 +147,7 @@ export const UserTable = () => {
             />
           );
         } else {
-          return <></>; 
+          return <></>;
         }
       }}
       headers={[

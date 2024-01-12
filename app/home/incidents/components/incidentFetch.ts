@@ -34,7 +34,6 @@ export const useIncidentsFetcher = () => {
         try {
           const role = await fetchAccountRole();
           const organizations = await fetchAccountOrganization();
-
           
 
           let fetchedIncidents = [];
@@ -47,9 +46,8 @@ export const useIncidentsFetcher = () => {
           
             fetchedIncidents = data.rows
 
-          } else if (role === "client" && organizations) {
+          } else if (role === "client" || role === "user" || role === "client_admin" && organizations) {
             const data = await fetchClientIncidents(organizations);
-            
             fetchedIncidents = data.rows;
           }
 

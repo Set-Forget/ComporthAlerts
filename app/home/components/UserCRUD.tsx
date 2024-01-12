@@ -19,15 +19,12 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { fetchAccountEmail } from "../incidents/utils/dbUtils";
 
 export const UserCRUD = () => {
-  const query = useUserQuery();
+  let query = useUserQuery();
   const [currentTab, setTab] = useState<"edit" >(
     "edit"
   );
   const [userRole, setUserRole] = useState(null); 
   const supabase = createClientComponentClient();
-
-
-
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -61,6 +58,8 @@ export const UserCRUD = () => {
 
     fetchUserData();
   }, []);
+
+
 
   const onSubmit = () => {
     setTimeout(() => {
@@ -98,7 +97,7 @@ export const UserCRUD = () => {
           <SheetTitle>User</SheetTitle>
         </SheetHeader>
         {query.state.type === "CREATE" && (
-          <UserForm onSubmit={onSubmit} />
+          <UserForm onSubmit={onSubmit}  />
         )}
         {query.state.type === "READ" && (
           <Tabs
@@ -113,7 +112,6 @@ export const UserCRUD = () => {
             <TabsContent value="edit">
               <UserForm init={query.state.data} onSubmit={onSubmit} />
             </TabsContent>
-            
           </Tabs>
         )}
       </SheetContent>

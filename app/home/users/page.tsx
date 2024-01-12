@@ -5,6 +5,7 @@ import { UserCRUD } from "../components/UserCRUD";
 
 export default () => {
   
+  
   return (
     <div>
       <UserCRUD />

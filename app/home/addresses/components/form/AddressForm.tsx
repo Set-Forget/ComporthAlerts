@@ -60,8 +60,6 @@ export const AddressForm = (props: Props) => {
     return res.data.id; // Devuelve un objeto con la propiedad 'id'
   };
 
-
-
   const onSubmit = form.handleSubmit(async (draft) => {
     const supabase = createClientComponentClient();
 
@@ -92,10 +90,31 @@ export const AddressForm = (props: Props) => {
 
       props.onSubmit?.(res.data[0]);
       toast({ title: "Successful" });
+    } else if (props.init) {
+      const { data, error } = await supabase
+        .from("address")
+        .update({
+          street: draft.street,
+          unit: draft.unit,
+          zip: draft.zip,
+          deleted: draft.deleted,
+        })
+        .eq("id", props.init.id);
+
+      if (error) {
+        console.log("errors:", error);
+
+        return toast({
+          title: "Error",
+          variant: "destructive",
+          description:
+            "There was an error editing the user, please try again. If the problem persists, please contact support.",
+        });
+      } else {
+        toast({ title: "Successful" });
+      }
     }
   });
-
-
 
   return (
     <Form {...form}>
@@ -126,7 +145,6 @@ export const AddressForm = (props: Props) => {
             rhf: "Input",
           })}
         />
-
 
         <div className="flex gap-2 items-center mt-6">
           <Button className="flex-1" type="submit">
