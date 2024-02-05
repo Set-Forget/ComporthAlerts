@@ -17,13 +17,14 @@ import { PlusCircleIcon } from "lucide-react";
 import { UserForm } from "../users/components";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { fetchAccountEmail } from "../incidents/utils/dbUtils";
+import { UserOrganizationTable } from "./table/UserOrganizationTable";
 
 export const UserCRUD = () => {
   let query = useUserQuery();
-  const [currentTab, setTab] = useState<"edit" >(
-    "edit"
-  );
-  const [userRole, setUserRole] = useState(null); 
+  const [currentTab, setTab] = useState<"edit" | "orgs">("edit");
+  const [userRole, setUserRole] = useState(null);
+  const [userInfo, setUserInfo] = useState({ id: null });
+
   const supabase = createClientComponentClient();
 
   useEffect(() => {
@@ -46,20 +47,19 @@ export const UserCRUD = () => {
 
         if (data) {
           setUserRole(data.role);
+          setUserInfo(data.id);
         } else {
           setUserRole(null);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
-        console.log(userRole)
+        console.log(userRole);
       }
     };
 
     fetchUserData();
   }, []);
-
-
 
   const onSubmit = () => {
     setTimeout(() => {
@@ -68,8 +68,7 @@ export const UserCRUD = () => {
     }, 500);
   };
 
-  const showCreateButton = userRole !== 'client' && userRole !== 'user';
-
+  const showCreateButton = userRole !== "client" && userRole !== "user";
 
   return (
     <Sheet
@@ -79,14 +78,14 @@ export const UserCRUD = () => {
         query.onSet((_) => ({ data: null, type: "" }));
       }}
     >
-     {showCreateButton && (
+      {showCreateButton && (
         <SheetTrigger asChild className="flex justify-between gap-1">
-          <Button 
+          <Button
             onClick={() => {
               query.onSet(() => ({ type: "CREATE" }));
             }}
           >
-            <p className="">Create</p> 
+            <p className="">Create</p>
             <PlusCircleIcon />
           </Button>
         </SheetTrigger>
@@ -96,9 +95,7 @@ export const UserCRUD = () => {
         <SheetHeader>
           <SheetTitle>User</SheetTitle>
         </SheetHeader>
-        {query.state.type === "CREATE" && (
-          <UserForm onSubmit={onSubmit}  />
-        )}
+        {query.state.type === "CREATE" && <UserForm onSubmit={onSubmit} />}
         {query.state.type === "READ" && (
           <Tabs
             onValueChange={(val: any) => setTab(val)}
@@ -108,9 +105,13 @@ export const UserCRUD = () => {
           >
             <TabsList>
               <TabsTrigger value="edit">Edit</TabsTrigger>
+              <TabsTrigger value="orgs">Organizations</TabsTrigger>
             </TabsList>
             <TabsContent value="edit">
               <UserForm init={query.state.data} onSubmit={onSubmit} />
+            </TabsContent>
+            <TabsContent value="orgs">
+              <UserOrganizationTable userId={userInfo.id} />{" "}
             </TabsContent>
           </Tabs>
         )}
