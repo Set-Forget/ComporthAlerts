@@ -207,6 +207,9 @@ const LoginComponent = () => {
         <h2 className=" text-center text-2xl font-bold  tracking-tight text-gray-900">
           {isSignUp ? "Sign up" : "Sign in"}
         </h2>
+        <div className="bg-yellow-300 text-black px-4 py-2 rounded-md shadow">
+          Please contact your administrator to use this application
+        </div>
       </div>
 
       <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-[480px]">
@@ -330,6 +333,7 @@ const LoginComponent = () => {
               <button
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                disabled
               >
                 {isSignUp
                   ? "Sign Up"
